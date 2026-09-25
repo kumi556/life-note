@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>个人多功能工具</title>
+<!-- 图标库 -->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!-- Chart.js图表 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<!-- 腾讯云TCB SDK -->
+<script src="https://imgcache.qq.com/qcloud/tcbjs/3.4.5/tcb.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;}
+body{min-height:100vh;overflow:hidden;background:#f8f9fa;}
+/* ==========左侧侧边栏（匹配你的草图）========== */
+.sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:72px;
+  height:100vh;
+  background:#ffffff;
+  box-shadow:2px 0 12px rgba(0,0,0,0.08);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 0;
+  gap:16px;
+  z-index:50;
+}
+.side-icon{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  background:#f2f4f8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  color:#4477ee;
+  cursor:pointer;
+  transition:0.2s;
+}
+.side-icon.active,.side-icon:active{
+  background:#4477ee;
+  color:#fff;
+}
+/* 背景设置放侧边栏最底部 */
+.bg-set-icon{
+  margin-top:auto;
+  margin-bottom:12px;
+  background:#fff4e5;
+  color:#f77f00;
+}
+/* ==========页面容器 右侧主内容区========== */
+.page{
+  display:none;
+  width:calc(100vw - 72px);
+  height:100vh;
+  margin-left:72px;
+  overflow-y:auto;
+  padding:16px;
+  background:#f8f9fa;
+}
+.page.active{display:block;}
+/*首页大背景框*/
+.home-bg{
+  width:100%;
+  height:42vh;
+  border-radius:18px;
+  background:#eef4ff;
+  margin-bottom:18px;
+  position:relative;
+  overflow:hidden;
+  background-size:cover;
+  background-position:center;
+}
+.home-tips{
+  background:#fff;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  margin-bottom:14px;
+}
+.home-tips h2{font-size:20px;margin-bottom:6px;color:#222;}
+.home-tips p{font-size:14px;color:#666;}
+.home-backups{
+  background:#fff;
+  padding:14px;
+  border-radius:16px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+}
+button{padding:10px 14px;border:none;border-radius:10px;font-size:15px;cursor:pointer;background:#4477ee;color:#fff;}
+input,textarea,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0;font-size:16px;}
+.btn-danger{background:#ed4c4c;}
+.list-item{background:#fff;padding:12px;border-radius:12px;margin:8px 0;box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.category-item{display:inline-block;padding:8px 12px;background:#dde7ff;border-radius:8px;margin:4px;position:relative;}
+.category-del{display:none;position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:red;color:#fff;border-radius:50%;text-align:center;font-size:12px;cursor:pointer;}
+.category-item.longpress .category-del{display:block;}
+.chart-box{background:#fff;padding:12px;border-radius:14px;margin:12px 0;height:320px;}
+/*账单金额颜色规则*/
+.cost-red{color:#d62828;font-weight:bold;}
+.cost-purple{color:#7b2cbf;font-weight:bold;}
+.cost-orange{color:#f77f00;font-weight:bold;}
+.cost-yellow{color:#fcbf49;font-weight:bold;}
+.cost-blue{color:#0077b6;font-weight:bold;}
+.cost-green{color:#2b9348;font-weight:bold;}
+.checkin-item{padding:8px 0;border-bottom:1px solid #eee;}
+</style>
+</head>
+<body>
+<!-- 左侧侧边栏（你的草图布局） -->
+<div class="sidebar">
+  <div class="side-icon" onclick="switchPage('page-home',this)" title="首页">
+    <i class="fa fa-home"></i>
+  </div>
+  <div class="side-icon" onclick="switchPage('page-bill',this)" title="记账本">
+    <i class="fa fa-wallet"></i>
+  </div>
+  <div class="side-icon" onclick="switchPage('page-note',this)" title="记事本">
+    <i class="fa fa-book"></i>
+  </div>
+  <div class="side-icon" onclick="switchPage('page-todo',this)" title="待办事项">
+    <i class="fa fa-check-square-o"></i>
+  </div>
+  <div class="side-icon" onclick="switchPage('page-focus',this)" title="专注时间">
+    <i class="fa fa-hourglass-half"></i>
+  </div>
+  <div class="side-icon" onclick="switchPage('page-checkin',this)" title="每日打卡">
+    <i class="fa fa-calendar"></i>
+  </div>
+  <!-- 背景设置放侧边栏底部 -->
+  <div class="side-icon bg-set-icon" onclick="openBgSetting()" title="自定义背景">
+    <i class="fa fa-picture-o"></i>
+  </div>
+</div>
+
+<!-- 首页 -->
+<div class="page active" id="page-home">
+  <div class="home-bg" id="homeBg"></div>
+  <div class="home-tips">
+    <h2>欢迎使用个人工具集</h2>
+    <p>点击左侧图标切换功能：记账、记事本、待办、专注计时、每日打卡</p>
+  </div>
+  <div class="home-backups">
+    <button onclick="exportData()">💾导出备份</button>
+    <input type="file" id="importFile" onchange="importData(this)" accept=".json">
+  </div>
+</div>
+
+<!-- 记账本页面 -->
+<div class="page" id="page-bill">
+  <h2>💰 记账本</h2>
+  <h4>新增账目</h4>
+  <input type="date" id="billDate">
+  <select id="billType">
+    <option value="income">收入</option>
+    <option value="expense">支出</option>
+  </select>
+  <input type="number" id="billAmount" placeholder="金额">
+  <select id="billCategory"></select>
+  <textarea id="billRemark" placeholder="备注"></textarea>
+  <button onclick="addBill()">添加账目</button>
+
+  <h4>自定义分类（长按分类，点叉删除）</h4>
+  <input id="newCatInput" placeholder="新建分类名称">
+  <button onclick="addCategory()">新增分类</button>
+  <div id="catList"></div>
+
+  <h4>每月定额消费(房租/话费)</h4>
+  <input id="fixedName" placeholder="定额名称">
+  <input type="number" id="fixedMoney" placeholder="每月金额">
+  <button onclick="addFixedCost()">添加定额</button>
+  <div id="fixedList"></div>
+
+  <h4>账目列表</h4>
+  <div id="billList"></div>
+
+  <h4>统计图表</h4>
+  <div class="chart-box"><canvas id="pieChart"></canvas></div>
+  <div class="chart-box"><canvas id="lineChart"></canvas></div>
+</div>
+
+<!--记事本页面-->
+<div class="page" id="page-note">
+  <h2>📖 记事本</h2>
+  <button onclick="newNote()">新建笔记</button>
+  <textarea id="noteEditor" style="height:300px;" placeholder="在此编辑文本"></textarea>
+  <button onclick="saveNote()">保存笔记</button>
+  <div id="noteList"></div>
+</div>
+
+<!--待办事项-->
+<div class="page" id="page-todo">
+  <h2>✅ 待办事项</h2>
+  <input id="todoInput" placeholder="添加待办">
+  <button onclick="addTodo()">新增</button>
+  <div id="todoList"></div>
+</div>
+
+<!--专注时间-->
+<div class="page" id="page-focus">
+  <h2>⏱️ 专注计时</h2>
+  <div style="text-align:center;font-size:48px;margin:20px 0;" id="focusTimer">25:00</div>
+  <button onclick="startFocus()">开始</button>
+  <button class="btn-danger" onclick="stopFocus()">停止</button>
+</div>
+
+<!--每日打卡页面-->
+<div class="page" id="page-checkin">
+  <h2>📅 每日打卡</h2>
+  <button onclick="doCheckin()">今日打卡</button>
+  <h4>打卡记录</h4>
+  <div id="checkinList"></div>
+</div>
+
+<script>
+// ==========【腾讯云TCB初始化】==========
+// 👉把引号内替换成你自己TCB的环境ID！！
+const envId = "life-note-2026-d5gx76rhsbe9b9930";
+const app = tcb.init({env: envId});
+const db = app.database();
+const _ = db.command;
+
+//全局数据
+let data = {
+  bgUrl:"",
+  categories:["餐饮","交通","购物"],
+  bills:[],
+  fixedCost:[],
+  notes:[],
+  todos:[],
+  checkinList:[]
+}
+let pieChart,lineChart;
+let focusTimerId = null;
+let focusSec = 25*60;
+let longPressTimer = null;
+
+// ==========页面切换+侧边栏高亮==========
+async function switchPage(pageId,domEl){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(pageId).classList.add("active");
+  document.querySelectorAll(".side-icon").forEach(i=>i.classList.remove("active"));
+  if(domEl) domEl.classList.add("active");
+
+  if(pageId === "page-bill") await renderBillPage();
+  if(pageId === "page-note") await renderNotePage();
+  if(pageId === "page-todo") await renderTodoPage();
+  if(pageId === "page-checkin") await renderCheckinPage();
+  if(pageId === "page-focus") resetFocusTimer();
+}
+
+// ==========云端读写封装函数==========
+//从云端拉取全部数据
+async function loadCloudData(){
+  try{
+    const res = await db.collection("userData").where({_id:"main"}).get();
+    if(res.data.length>0){
+      data = res.data[0].dataObj;
+    }else{
+      await db.collection("userData").add({_id:"main",dataObj:data});
+    }
+    applyBackground();
+  }catch(e){
+    alert("云端读取失败，检查TCB环境ID与数据库权限："+e);
+  }
+}
+//保存全部数据到云端
+async function saveCloudData(){
+  await db.collection("userData").where({_id:"main"}).update({dataObj:data});
+}
+
+// ==========背景设置==========
+function openBgSetting(){
+  const url = prompt("粘贴背景图片链接",data.bgUrl||"");
+  if(url !== null){
+    data.bgUrl = url;
+    applyBackground();
+    saveCloudData();
+  }
+}
+function applyBackground(){
+  const bgDom = document.getElementById("homeBg");
+  if(data.bgUrl){
+    bgDom.style.backgroundImage = `url(${data.bgUrl})`;
+  }else{
+    bgDom.style.backgroundImage = "";
+  }
+}
+
+// ==========记账模块==========
+async function addBill(){
+  const date = document.getElementById("billDate").value;
+  const type = document.getElementById("billType").value;
+  const amount = Number(document.getElementById("billAmount").value);
+  const cat = document.getElementById("billCategory").value;
+  const remark = document.getElementById("billRemark").value;
+  if(!date || !amount || !cat) return alert("请填完整信息");
+  data.bills.push({date,type,amount,category:cat,remark});
+  await saveCloudData();
+  await renderBillPage();
+}
+async function addCategory(){
+  const name = document.getElementById("newCatInput").value.trim();
+  if(!name) return;
+  data.categories.push(name);
+  await saveCloudData();
+  await renderBillPage();
+}
+async function addFixedCost(){
+  const name = document.getElementById("fixedName").value.trim();
+  const money = Number(document.getElementById("fixedMoney").value);
+  if(!name || !money) return;
+  data.fixedCost.push({name,money});
+  await saveCloudData();
+  await renderBillPage();
+}
+//金额颜色计算
+function getCostClass(num){
+  if(num>1000) return "cost-red";
+  if(num>500) return "cost-purple";
+  if(num>100) return "cost-orange";
+  if(num>50) return "cost-yellow";
+  if(num>25) return "cost-blue";
+  if(num>0) return "cost-green";
+  return "";
+}
+async function renderBillPage(){
+  //分类下拉与列表
+  const catSel = document.getElementById("billCategory");
+  catSel.innerHTML = "";
+  const catWrap = document.getElementById("catList");
+  catWrap.innerHTML = "";
+  data.categories.forEach((c,idx)=>{
+    const opt = document.createElement("option");
+    opt.innerText = c;opt.value=c;
+    catSel.appendChild(opt);
+    const div = document.createElement("div");
+    div.className="category-item";
+    div.innerText = c;
+    const del = document.createElement("span");
+    del.className="category-del";
+    del.innerText="×";
+    del.onclick=async (e)=>{
+      e.stopPropagation();
+      data.categories.splice(idx,1);
+      await saveCloudData();
+      await renderBillPage();
+    }
+    div.appendChild(del);
+    //长按事件
+    div.addEventListener("touchstart",()=>{
+      longPressTimer = setTimeout(()=>div.classList.add("longpress"),600);
+    })
+    div.addEventListener("touchend",()=>clearTimeout(longPressTimer));
+    catWrap.appendChild(div);
+  })
+  //定额消费
+  let fixedHtml = "";
+  data.fixedCost.forEach((item,i)=>{
+    fixedHtml += `<div class="list-item">${item.name} 每月${item.money}元 <button onclick="delFixed(${i})">删除</button></div>`
+  })
+  document.getElementById("fixedList").innerHTML = fixedHtml;
+  //账单列表
+  let billHtml = "";
+  data.bills.forEach(b=>{
+    const cls = b.type==="expense"?getCostClass(b.amount):"";
+    billHtml += `<div class="list-item">${b.date} ${b.type==='income'?'收入':'支出'} <span class="${cls}">${b.amount}</span> | ${b.category}<br>备注：${b.remark}</div>`
+  })
+  document.getElementById("billList").innerHTML = billHtml;
+  renderBillChart();
+}
+async function delFixed(i){
+  data.fixedCost.splice(i,1);
+  await saveCloudData();
+  await renderBillPage();
+}
+//绘制饼图（当月分类支出）+折线图（分类月度趋势）
+function renderBillChart(){
+  const nowMonth = new Date().toISOString().slice(0,7);
+  const monthExp = data.bills.filter(b=>b.date.startsWith(nowMonth) && b.type==="expense");
+  const pieData = {};
+  monthExp.forEach(b=>{
+    if(!pieData[b.category]) pieData[b.category]=0;
+    pieData[b.category] += b.amount;
+  })
+  if(pieChart) pieChart.destroy();
+  const pieCtx = document.getElementById("pieChart").getContext("2d");
+  pieChart = new Chart(pieCtx,{
+    type:"pie",
+    data:{labels:Object.keys(pieData),datasets:[{data:Object.values(pieData)}]},
+    options:{responsive:true,maintainAspectRatio:false}
+  })
+  //折线图 餐饮月度开销示例
+  const lineCtx = document.getElementById("lineChart").getContext("2d");
+  const monthGroup = {};
+  data.bills.filter(b=>b.type==="expense").forEach(b=>{
+    const m = b.date.slice(0,7);
+    if(!monthGroup[m]) monthGroup[m]=0;
+    monthGroup[m] += b.amount;
+  })
+  if(lineChart) lineChart.destroy();
+  lineChart = new Chart(lineCtx,{
+    type:"line",
+    data:{labels:Object.keys(monthGroup),datasets:[{label:"每月总支出",data:Object.values(monthGroup),borderColor:"#4477ee"}]},
+    options:{responsive:true,maintainAspectRatio:false}
+  })
+}
+
+// ==========记事本==========
+async function newNote(){
+  data.notes.push({id:Date.now(),content:""});
+  await saveCloudData();
+  await renderNotePage();
+}
+async function saveNote(){
+  const text = document.getElementById("noteEditor").value;
+  if(data.notes.length>0) data.notes[data.notes.length-1].content = text;
+  await saveCloudData();
+  await renderNotePage();
+}
+async function renderNotePage(){
+  document.getElementById("noteEditor").value = data.notes.length>0 ? data.notes[data.notes.length-1].content : "";
+  let html = "";
+  data.notes.forEach((n,i)=>{
+    html += `<div class="list-item">${n.content.slice(0,30)}... <button onclick="delNote(${i})">删除</button></div>`
+  })
+  document.getElementById("noteList").innerHTML = html;
+}
+async function delNote(i){
+  data.notes.splice(i,1);
+  await saveCloudData();
+  await renderNotePage();
+}
+
+// ==========待办==========
+async function addTodo(){
+  const txt = document.getElementById("todoInput").value.trim();
+  if(!txt)return;
+  data.todos.push({text:txt,done:false});
+  await saveCloudData();
+  await renderTodoPage();
+}
+async function renderTodoPage(){
+  let html = "";
+  data.todos.forEach((t,i)=>{
+    html += `<div class="list-item"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTodo(${i})"> ${t.text} <button onclick="delTodo(${i})">删</button></div>`
+  })
+  document.getElementById("todoList").innerHTML = html;
+}
+async function toggleTodo(i){
+  data.todos[i].done = !data.todos[i].done;
+  await saveCloudData();
+  await renderTodoPage();
+}
+async function delTodo(i){
+  data.todos.splice(i,1);
+  await saveCloudData();
+  await renderTodoPage();
+}
+
+// ==========专注计时==========
+function resetFocusTimer(){
+  focusSec = 25*60;
+  updateFocusDisplay();
+  if(focusTimerId) clearInterval(focusTimerId);
+}
+function updateFocusDisplay(){
+  const m = Math.floor(focusSec/60);
+  const s = focusSec%60;
+  document.getElementById("focusTimer").innerText = String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+function startFocus(){
+  if(focusTimerId) return;
+  focusTimerId = setInterval(()=>{
+    focusSec--;
+    updateFocusDisplay();
+    if(focusSec<=0){
+      clearInterval(focusTimerId);
+      alert("专注结束！");
+    }
+  },1000)
+}
+function stopFocus(){
+  clearInterval(focusTimerId);
+  focusTimerId=null;
+}
+
+// ==========打卡模块==========
+async function doCheckin(){
+  const today = new Date().toISOString().slice(0,10);
+  if(data.checkinList.includes(today)) return alert("今日已打卡");
+  data.checkinList.push(today);
+  await saveCloudData();
+  await renderCheckinPage();
+}
+async function renderCheckinPage(){
+  let html = "";
+  data.checkinList.sort((a,b)=>new Date(b)-new Date(a)).forEach(d=>{
+    html += `<div class="checkin-item">✅ ${d}</div>`
+  })
+  document.getElementById("checkinList").innerHTML = html;
+}
+
+// ==========本地备份导出导入（保留）==========
+function exportData(){
+  const str = JSON.stringify(data,null,2);
+  const blob = new Blob([str],{type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "个人工具备份.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+async function importData(fileInput){
+  const file = fileInput.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async e=>{
+    try{
+      data = JSON.parse(e.target.result);
+      await saveCloudData();
+      alert("导入成功！");
+      location.reload();
+    }catch(err){alert("备份文件损坏");}
+  }
+  reader.readAsText(file);
+}
+
+//页面加载初始化
+window.onload = async ()=>{
+  await loadCloudData();
+  //默认首页图标激活
+  document.querySelector(".sidebar .side-icon").classList.add("active");
+}
+</script>
+</body>
+</html>
+
