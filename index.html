@@ -103,9 +103,14 @@
         <div onclick="renderPage('focus')" class="side-icon">
             <i class="fa fa-clock-o text-primary text-xl"></i>
         </div>
-        <div onclick="openBgSetting()" class="side-icon mt-auto mb-8">
-            <i class="fa fa-picture-o text-gray-700 text-xl"></i>
-        </div>
+        
+        <div onclick="openModal('modal-backup')" class="side-icon">
+    <i class="fa fa-download text-gray-700 text-xl"></i>
+</div>
+<div onclick="openBgSetting()" class="side-icon mt-auto mb-8">
+    <i class="fa fa-picture-o text-gray-700 text-xl"></i>
+</div>
+
     </div>
     <div id="page-container" class="page-container"></div>
 
@@ -260,6 +265,74 @@
         </div>
     </div>
 </div>
+<!-- ==========新增：打卡分组弹窗 ========== -->
+<div id="modal-checkin-group" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+        <h3 class="font-bold mb-3">新建打卡分组</h3>
+        <input type="text" id="checkin-group-name" placeholder="分组名称" class="w-full border p-2 rounded mb-3">
+        <div class="flex gap-2">
+            <button onclick="saveCheckinGroup()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+            <button onclick="closeModal('modal-checkin-group')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========修改：新增打卡弹窗，增加分组下拉 ========== -->
+<div id="modal-checkin" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+        <h3 class="font-bold mb-3">新增打卡项目</h3>
+        <select id="checkin-select-group" class="w-full border p-2 rounded mb-2"></select>
+        <input type="text" id="checkin-name" placeholder="打卡名称" class="w-full border p-2 rounded">
+        <div class="flex gap-2 mt-4">
+            <button onclick="saveCheckin()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+            <button onclick="closeModal('modal-checkin')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========新增：打卡分组弹窗 ========== -->
+<div id="modal-checkin-group" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+        <h3 class="font-bold mb-3">新建打卡分组</h3>
+        <input type="text" id="checkin-group-name" placeholder="分组名称" class="w-full border p-2 rounded mb-3">
+        <div class="flex gap-2">
+            <button onclick="saveCheckinGroup()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+            <button onclick="closeModal('modal-checkin-group')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========修改：新增打卡弹窗，增加分组下拉 ========== -->
+<div id="modal-checkin" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+        <h3 class="font-bold mb-3">新增打卡项目</h3>
+        <select id="checkin-select-group" class="w-full border p-2 rounded mb-2"></select>
+        <input type="text" id="checkin-name" placeholder="打卡名称" class="w-full border p-2 rounded">
+        <div class="flex gap-2 mt-4">
+            <button onclick="saveCheckin()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+            <button onclick="closeModal('modal-checkin')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========新增：备份导入弹窗 ========== -->
+<div id="modal-backup" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+        <h3 class="font-bold mb-3">数据备份 / 导入</h3>
+        <div class="space-y-3">
+            <button onclick="exportAllData()" class="w-full py-2 bg-primary text-white rounded">导出全部数据备份(json)</button>
+            <div>
+                <label class="block text-sm mb-1">从备份文件导入(会合并现有数据)</label>
+                <input type="file" accept=".json" id="import-file" class="w-full">
+                <button onclick="importAllData()" class="w-full mt-2 py-2 bg-orange-500 text-white rounded">执行导入</button>
+            </div>
+        </div>
+        <button onclick="closeModal('modal-backup')" class="w-full mt-3 py-2 bg-gray-200 rounded">关闭</button>
+    </div>
+</div>
+
+
+
 
 <script>
 let currentPage = "home";
@@ -271,8 +344,11 @@ const STORAGE_KEYS = {
     todos: "tool_todos",
     checkins: "tool_checkins",
     bg: "tool_bg",
-    fixedBills: "tool_fixedBills"
+    fixedBills: "tool_fixedBills",
+    //新增
+    checkinGroups:"tool_checkinGroups"
 };
+
 let data = {
     bills: JSON.parse(localStorage.getItem(STORAGE_KEYS.bills)) || [],
     categories: JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || ["餐饮","交通","购物","工资"],
@@ -280,7 +356,12 @@ let data = {
     projects: JSON.parse(localStorage.getItem(STORAGE_KEYS.projects)) || [],
     todos: JSON.parse(localStorage.getItem(STORAGE_KEYS.todos)) || [],
     checkins: JSON.parse(localStorage.getItem(STORAGE_KEYS.checkins)) || [],
+    // =========新增 打卡文件夹分类=========
+    checkinGroups: JSON.parse(localStorage.getItem("tool_checkinGroups")) || [
+        {id:"default", name:"默认分组"}
+    ]
 };
+
 let fixedBills = JSON.parse(localStorage.getItem(STORAGE_KEYS.fixedBills)) || [];
 let timerInfo = { total:0, remain:0, timerId:null, running:false }
 let stepTempList = [];
@@ -580,15 +661,17 @@ function renderCheckinPage(box){
                 <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
                 <h2 class="text-xl font-bold">每日打卡</h2>
                 <div>
+                    <button onclick="openModal('modal-checkin-group')" class="px-2 py-1 bg-gray-300 rounded text-sm mr-1">新建分组</button>
                     <button onclick="openModal('modal-checkin-query')" class="px-2 py-1 bg-gray-300 rounded text-sm mr-1">查询日期</button>
                     <button onclick="openAddCheckinModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
                 </div>
             </div>
-            <div id="checkin-list" class="space-y-2"></div>
+            <div id="checkin-list" class="space-y-4"></div>
         </div>
     `;
     renderCheckinList();
 }
+
 function renderFocusPage(box){
     box.innerHTML = `
         <div class="p-4 flex flex-col items-center justify-center h-full">
@@ -979,32 +1062,46 @@ function deleteOneDayCheckin(checkinIndex,recordIndex){
 function renderCheckinList(){
     const wrap = document.getElementById('checkin-list');
     wrap.innerHTML = "";
-    data.checkins.forEach((ck, idx)=>{
-        const last = ck.records.length ? new Date(ck.records[ck.records.length-1]) : null;
-        let streak = 0;
-        if(last){
-            const now = new Date();
-            for(let i=0;i<ck.records.length;i++){
-                const d = new Date(ck.records[ck.records.length-1-i]);
-                if(Math.abs(d - now)/(1000*3600*24) <= i+1) streak++;
-                else break;
+    data.checkinGroups.forEach(group=>{
+        //当前分组下所有打卡项目
+        const groupItems = data.checkins.filter(item=>item.groupId === group.id || !item.groupId && group.id==="default");
+        let itemHtml = "";
+        groupItems.forEach((ck)=>{
+            const idx = data.checkins.indexOf(ck);
+            const last = ck.records.length ? new Date(ck.records[ck.records.length-1]) : null;
+            let streak = 0;
+            if(last){
+                const now = new Date();
+                for(let i=0;i<ck.records.length;i++){
+                    const d = new Date(ck.records[ck.records.length-1-i]);
+                    if(Math.abs(d - now)/(1000*3600*24) <= i+1) streak++;
+                    else break;
+                }
             }
-        }
-        const dateList = ck.records.map(r=> r.split('T')[0]).join("、");
+            const dateList = ck.records.map(r=> r.split('T')[0]).join("、");
+            itemHtml += `
+            <div class="bg-white/70 p-3 rounded mt-1 ml-3">
+                <div class="flex justify-between items-center">
+                    <div class="font-semibold">${ck.name}</div>
+                    <div>连续打卡：${streak}天</div>
+                </div>
+                <div class="text-sm mt-1 text-gray-600">打卡日期：${dateList || "暂无打卡记录"}</div>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="doCheckin(${idx})" class="px-3 py-1 bg-primary text-white rounded text-sm">今日打卡</button>
+                    <button onclick="delCheckin(${idx})" class="px-3 py-1 bg-red-400 text-white rounded text-sm">删除项目</button>
+                </div>
+            </div>`;
+        })
+
         wrap.innerHTML += `
-        <div class="bg-white/70 p-3 rounded">
-            <div class="flex justify-between items-center">
-                <div class="font-semibold">${ck.name}</div>
-                <div>连续打卡：${streak}天</div>
-            </div>
-            <div class="text-sm mt-1 text-gray-600">打卡日期：${dateList || "暂无打卡记录"}</div>
-            <div class="flex gap-2 mt-2">
-                <button onclick="doCheckin(${idx})" class="px-3 py-1 bg-primary text-white rounded text-sm">今日打卡</button>
-                <button onclick="delCheckin(${idx})" class="px-3 py-1 bg-red-400 text-white rounded text-sm">删除项目</button>
-            </div>
-        </div>`
+        <div class="bg-blue-50 p-3 rounded">
+            <div class="font-bold">📂 ${group.name}</div>
+            ${itemHtml || `<div class="text-gray-400 text-sm ml-3 mt-1">该分组暂无打卡项目</div>`}
+        </div>
+        `
     })
 }
+
 function doCheckin(idx){
     const today = new Date().toISOString().split('T')[0];
     const exist = data.checkins[idx].records.find(r=> r.startsWith(today));
@@ -1014,6 +1111,111 @@ function doCheckin(idx){
     renderPage('checkin');
 }
 function delCheckin(idx){ data.checkins.splice(idx,1); saveData('checkins'); renderPage('checkin'); }
+
+//保存打卡分组
+function saveCheckinGroup(){
+    const gname = document.getElementById("checkin-group-name").value.trim();
+    if(!gname) return alert("请输入分组名称");
+    const newGroup = {
+        id: "g_"+Date.now(),
+        name:gname
+    }
+    data.checkinGroups.push(newGroup);
+    saveData("checkinGroups");
+    closeModal("modal-checkin-group");
+    renderPage("checkin");
+}
+
+//填充打卡分组下拉
+function fillCheckinGroupSelect(selId, selectVal=""){
+    const sel = document.getElementById(selId);
+    sel.innerHTML = "";
+    data.checkinGroups.forEach(g=>{
+        sel.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+    })
+    if(selectVal) sel.value = selectVal;
+}
+
+//修改打开新增打卡弹窗
+function openAddCheckinModal(){
+    openModal('modal-checkin');
+    document.getElementById('checkin-name').value="";
+    fillCheckinGroupSelect("checkin-select-group");
+}
+
+//修改保存打卡，带上groupId
+function saveCheckin(){
+    const groupId = document.getElementById("checkin-select-group").value;
+    const ck = { 
+        name: document.getElementById('checkin-name').value, 
+        groupId: groupId,
+        records:[] 
+    }
+    data.checkins.push(ck);
+    saveData('checkins');
+    closeModal('modal-checkin');
+    renderPage('checkin');
+}
+
+//导出全部本地存储数据
+function exportAllData(){
+    const exportObj = {
+        data: data,
+        fixedBills: fixedBills,
+        exportTime: new Date().toLocaleString()
+    }
+    const jsonStr = JSON.stringify(exportObj,null,2);
+    const blob = new Blob([jsonStr],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `个人工具集备份_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+}
+
+//导入备份
+function importAllData(){
+    const fileInput = document.getElementById("import-file");
+    const file = fileInput.files[0];
+    if(!file) return alert("请选择备份json文件");
+    const reader = new FileReader();
+    reader.onload = function(e){
+        try{
+            const importData = JSON.parse(e.target.result);
+            //合并导入数据到本地，追加模式，不会清空原有
+            if(importData.data){
+                if(importData.data.bills) data.bills = [...data.bills, ...importData.data.bills];
+                if(importData.data.categories) data.categories = [...new Set([...data.categories,...importData.data.categories])];
+                if(importData.data.notes) data.notes = [...data.notes, ...importData.data.notes];
+                if(importData.data.projects) data.projects = [...data.projects, ...importData.data.projects];
+                if(importData.data.todos) data.todos = [...data.todos, ...importData.data.todos];
+                if(importData.data.checkins) data.checkins = [...data.checkins, ...importData.data.checkins];
+                if(importData.data.checkinGroups) data.checkinGroups = [...data.checkinGroups,...importData.data.checkinGroups];
+            }
+            if(importData.fixedBills) fixedBills = [...fixedBills, ...importData.fixedBills];
+
+            //全部写localStorage
+            saveData("bills");
+            saveData("categories");
+            saveData("notes");
+            saveData("projects");
+            saveData("todos");
+            saveData("checkins");
+            saveData("checkinGroups");
+            localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
+
+            alert("导入完成！页面刷新展示数据");
+            renderPage(currentPage);
+            closeModal("modal-backup");
+        }catch(err){
+            alert("导入失败，文件格式错误！"+err.message);
+        }
+    }
+    reader.readAsText(file);
+}
+
 
 //专注计时器
 function startTimer(){
