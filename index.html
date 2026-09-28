@@ -331,6 +331,18 @@
     </div>
 </div>
 
+<!--打卡分组重命名弹窗-->
+<div id="modal-rename-group" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+        <h3 class="font-bold mb-3">重命名分组</h3>
+        <input type="hidden" id="rename_group_id">
+        <input type="text" id="rename_group_name" placeholder="输入新分组名称" class="w-full border p-2 rounded mb-3">
+        <div class="flex gap-2">
+            <button onclick="saveRenameGroup()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+            <button onclick="closeModal('modal-rename-group')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+        </div>
+    </div>
+</div>
 
 
 
@@ -1064,7 +1076,7 @@ function renderCheckinList(){
     wrap.innerHTML = "";
     data.checkinGroups.forEach(group=>{
         //当前分组下所有打卡项目
-        const groupItems = data.checkins.filter(item=>item.groupId === group.id || !item.groupId && group.id==="default");
+        const groupItems = data.checkins.filter(item=>item.groupId === group.id || (!item.groupId && group.id==="default"));
         let itemHtml = "";
         groupItems.forEach((ck)=>{
             const idx = data.checkins.indexOf(ck);
@@ -1092,27 +1104,83 @@ function renderCheckinList(){
                 </div>
             </div>`;
         })
+        // 默认分组禁止删除
+        let delBtnHtml = "";
+        let renameBtnHtml = `<button onclick="openRenameGroupModal('${group.id}')" class="text-blue-600 text-sm mx-2"><i class="fa fa-pencil"></i>重命名</button>`;
+        if(group.id !== "default"){
+            delBtnHtml = `<button onclick="deleteCheckinGroup('${group.id}')" class="text-red-500 text-sm"><i class="fa fa-trash"></i> 删除分组</button>`;
+        }
 
         wrap.innerHTML += `
-        <div class="bg-blue-50 p-3 rounded">
-            <div class="font-bold">📂 ${group.name}</div>
-            ${itemHtml || `<div class="text-gray-400 text-sm ml-3 mt-1">该分组暂无打卡项目</div>`}
+        <div class="bg-blue-50 p-3 rounded my-2">
+            <div class="font-bold flex justify-between items-center cursor-pointer" onclick="toggleCheckinGroup('${group.id}')">
+                <span>📂 ${group.name}</span>
+                <div>
+                    ${renameBtnHtml}
+                    ${delBtnHtml}
+                </div>
+            </div>
+            <div id="group_body_${group.id}">
+                ${itemHtml || `<div class="text-gray-400 text-sm ml-3 mt-1">该分组暂无打卡项目</div>`}
+            </div>
         </div>
         `
     })
 }
 
-function doCheckin(idx){
-    const today = new Date().toISOString().split('T')[0];
-    const exist = data.checkins[idx].records.find(r=> r.startsWith(today));
-    if(exist) return alert('今天已经打卡！');
-    data.checkins[idx].records.push(new Date().toISOString());
-    saveData('checkins');
-    renderPage('checkin');
+//删除打卡分组，内部打卡迁移回默认分组
+function deleteCheckinGroup(groupId){
+    if(!confirm("确定删除该分组？分组内所有打卡项目会移动到【默认分组】")) return;
+    // 将该分组下所有打卡迁移回 default
+    data.checkins.forEach(ck=>{
+        if(ck.groupId === groupId){
+            ck.groupId = "default";
+        }
+    })
+    // 删除分组本身
+    const idx = data.checkinGroups.findIndex(g=>g.id === groupId);
+    if(idx > -1){
+        data.checkinGroups.splice(idx,1);
+    }
+    saveData("checkinGroups");
+    renderPage("checkin");
 }
+
+//打开重命名弹窗
+function openRenameGroupModal(gid){
+    const g = data.checkinGroups.find(x=>x.id === gid);
+    if(!g) return;
+    document.getElementById("rename_group_id").value = gid;
+    document.getElementById("rename_group_name").value = g.name;
+    openModal("modal-rename-group");
+}
+
+//保存重命名
+function saveRenameGroup(){
+    const gid = document.getElementById("rename_group_id").value;
+    const newName = document.getElementById("rename_group_name").value.trim();
+    if(!newName) return alert("请输入分组名称");
+    const g = data.checkinGroups.find(x=>x.id === gid);
+    if(!g) return;
+    g.name = newName;
+    saveData("checkinGroups");
+    closeModal("modal-rename-group");
+    renderPage("checkin");
+}
+
+//切换分组折叠/展开
+function toggleCheckinGroup(groupId){
+    const dom = document.getElementById("group_body_"+groupId);
+    if(!dom) return;
+    dom.classList.toggle("group-collapsed");
+}
+
+
+
 function delCheckin(idx){ data.checkins.splice(idx,1); saveData('checkins'); renderPage('checkin'); }
 
 //保存打卡分组
+
 function saveCheckinGroup(){
     const gname = document.getElementById("checkin-group-name").value.trim();
     if(!gname) return alert("请输入分组名称");
@@ -1123,8 +1191,9 @@ function saveCheckinGroup(){
     data.checkinGroups.push(newGroup);
     saveData("checkinGroups");
     closeModal("modal-checkin-group");
-    renderPage("checkin");
+    renderPage("checkin"); // 刷新打卡页面，新增打卡下拉就有新分组
 }
+
 
 //填充打卡分组下拉
 function fillCheckinGroupSelect(selId, selectVal=""){
