@@ -1,1350 +1,1598 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#3b82f6">
-    <title>个人工具集</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5LqV5Lqs5oqA5YqhIiwic2hvcnRfbmFtZSI6IuW8oOW8oOi9veS6p+W3peWFtS4rSIsImRlc2NyaXB0aW9uIjoi6LWE6K6v54K55Yqh5Zyo57q/55qE54K55Yqh5Zyo57q/Iiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiMzYjgyZjYiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE5KeWJHRjVjM1JsY2k5eSIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3b82f6',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        * {
-            -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box;
-        }
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            margin:0;
-        }
-        .bg-container {
-            transition: background 0.3s;
-            height: 100%;
-            overflow: hidden;
-        }
-        .sidebar {
-            position: fixed;
-            left:0;
-            top:0;
-            width: 80px;
-            height:100%;
-            z-index: 40;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            gap: 8vh;
-            align-items:center;
-        }
-        .side-icon{
-            width: 48px;
-            height:48px;
-            border-radius: 0.5rem;
-            background:rgba(255,255,255,0.8);
-            box-shadow:0 1px 3px #0002;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            cursor:pointer;
-        }
-        .page-container {
-            position: absolute;
-            top: 0;
-            left: 80px;
-            width: calc(100% - 80px);
-            height: 100%;
-            overflow-y: auto;
-        }
-        .category-item .del-mark { display: none; }
-        .category-item.longpress .del-mark { display: block; }
-        .longpress-target {
-            user-select: none;
-        }
-        .timer-ring {
-            transform: rotate(-90deg);
-        }
-        .dot-marker{
-            width:12px;height:12px;border-radius:999px;display:inline-block;margin-right:6px;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>个人工具集</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#3b82f6'
+      }
+    }
+  }
+}
+</script>
+<style>
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+  }
+  .bg-container {
+    transition: background 0.3s;
+    height: 100%;
+    overflow: hidden;
+  }
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 100%;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8vh;
+    align-items: center;
+  }
+  .side-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.5rem;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 1px 3px #0002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .page-container {
+    position: absolute;
+    top: 0;
+    left: 80px;
+    width: calc(100% - 80px);
+    height: 100%;
+    overflow-y: auto;
+  }
+  .timer-ring {
+    transform: rotate(-90deg);
+  }
+  .dot-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    display: inline-block;
+    margin-right: 6px;
+  }
+  .checkin-group-box {
+    background: #eff6ff;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 8px 0;
+  }
+  .checkin-item-card {
+    background: rgba(255,255,255,0.75);
+    padding: 10px;
+    border-radius: 6px;
+    margin: 6px 0 6px 12px;
+  }
+</style>
 </head>
 <body>
+
 <div id="app" class="bg-container relative">
-    <div class="sidebar">
-        <div onclick="renderPage('home')" class="side-icon">
-            <i class="fa fa-home text-primary text-xl"></i>
-        </div>
-        <div onclick="renderPage('book')" class="side-icon">
-            <i class="fa fa-book text-primary text-xl"></i>
-        </div>
-        <div onclick="renderPage('record')" class="side-icon">
-            <i class="fa fa-file-text-o text-primary text-xl"></i>
-        </div>
-        <div onclick="renderPage('todo')" class="side-icon">
-            <i class="fa fa-list-ul text-primary text-xl"></i>
-        </div>
-        <div onclick="renderPage('checkin')" class="side-icon">
-            <i class="fa fa-calendar-check-o text-primary text-xl"></i>
-        </div>
-        <div onclick="renderPage('focus')" class="side-icon">
-            <i class="fa fa-clock-o text-primary text-xl"></i>
-        </div>
-        
-        <div onclick="openModal('modal-backup')" class="side-icon">
-    <i class="fa fa-download text-gray-700 text-xl"></i>
+  <div class="sidebar">
+    <div onclick="renderPage('home')" class="side-icon">
+      <i class="fa fa-home text-primary text-xl"></i>
+    </div>
+    <div onclick="renderPage('book')" class="side-icon">
+      <i class="fa fa-book text-primary text-xl"></i>
+    </div>
+    <div onclick="renderPage('record')" class="side-icon">
+      <i class="fa fa-file-text-o text-primary text-xl"></i>
+    </div>
+    <div onclick="renderPage('todo')" class="side-icon">
+      <i class="fa fa-list-ul text-primary text-xl"></i>
+    </div>
+    <div onclick="renderPage('checkin')" class="side-icon">
+      <i class="fa fa-calendar-check-o text-primary text-xl"></i>
+    </div>
+    <div onclick="renderPage('focus')" class="side-icon">
+      <i class="fa fa-clock-o text-primary text-xl"></i>
+    </div>
+    <div onclick="openModal('modal-backup')" class="side-icon">
+      <i class="fa fa-download text-primary text-xl"></i>
+    </div>
+    <div onclick="openBgSetting()" class="side-icon mt-auto mb-8">
+      <i class="fa fa-picture-o text-primary text-xl"></i>
+    </div>
+  </div>
+
+  <div id="page-container" class="page-container"></div>
 </div>
-<div onclick="openBgSetting()" class="side-icon mt-auto mb-8">
-    <i class="fa fa-picture-o text-gray-700 text-xl"></i>
+
+<!-- 背景设置弹窗 -->
+<div id="modal-bg" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">背景设置</h3>
+    <div class="mb-3">
+      <label class="block text-sm mb-1">背景颜色</label>
+      <input type="color" id="bg-color" class="w-full h-10" onchange="setBgColor()" />
+    </div>
+    <div class="mb-3">
+      <label class="block text-sm mb-1">自定义背景图片</label>
+      <input type="file" accept="image/*" onchange="uploadBgImage()" />
+    </div>
+    <button onclick="closeModal('modal-bg')" class="w-full py-2 bg-gray-200 rounded">关闭</button>
+  </div>
 </div>
 
+<!-- 新增账单弹窗 -->
+<div id="modal-bill" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">新增账目</h3>
+    <div class="space-y-2">
+      <div class="flex items-center gap-2">
+        <label>日期</label>
+        <input type="date" id="bill-date" class="flex-1 border p-2 rounded" />
+      </div>
+      <select id="bill-type" class="w-full border p-2 rounded">
+        <option value="income">收入</option>
+        <option value="expense">支出</option>
+      </select>
+      <select id="bill-category" class="w-full border p-2 rounded"></select>
+      <input type="number" id="bill-amount" placeholder="金额" class="w-full border p-2 rounded" />
+      <input type="text" id="bill-note" placeholder="备注" class="w-full border p-2 rounded" />
     </div>
-    <div id="page-container" class="page-container"></div>
-
-    <!--背景弹窗-->
-    <div id="modal-bg" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">背景设置</h3>
-            <div class="mb-3">
-                <label class="block text-sm mb-1">背景颜色</label>
-                <input type="color" id="bg-color" class="w-full h-10" onchange="setBgColor()">
-            </div>
-            <div class="mb-3">
-                <label class="block text-sm mb-1">自定义背景图片</label>
-                <input type="file" accept="image/*" onchange="uploadBgImage()">
-            </div>
-            <button onclick="closeModal('modal-bg')" class="w-full py-2 bg-gray-200 rounded">关闭</button>
-        </div>
+    <div class="mt-2">
+      <button onclick="openSelectFixedModal()" class="w-full py-1 bg-gray-300 rounded text-sm">选择定额卡片，快速记账</button>
     </div>
-
-    <!--新增账单弹窗-->
-    <div id="modal-bill" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">新增账目</h3>
-            <div class="space-y-2">
-                <input type="date" id="bill-date" class="w-full border p-2 rounded">
-                <select id="bill-type" class="w-full border p-2 rounded">
-                    <option value="income">收入</option>
-                    <option value="expense">支出</option>
-                </select>
-                <select id="bill-category" class="w-full border p-2 rounded"></select>
-                <input type="number" id="bill-amount" placeholder="金额" class="w-full border p-2 rounded">
-                <input type="text" id="bill-note" placeholder="备注" class="w-full border p-2 rounded">
-            </div>
-            <div class="flex gap-2 mt-4">
-                <button onclick="saveBill()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-                <button onclick="closeModal('modal-bill')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveBill()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-bill')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
     </div>
-
-    <!--编辑账单弹窗【新增】-->
-    <div id="modal-bill-edit" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">编辑账目</h3>
-            <input type="hidden" id="edit-bill-index">
-            <div class="space-y-2">
-                <input type="date" id="edit-bill-date" class="w-full border p-2 rounded">
-                <select id="edit-bill-type" class="w-full border p-2 rounded">
-                    <option value="income">收入</option>
-                    <option value="expense">支出</option>
-                </select>
-                <select id="edit-bill-category" class="w-full border p-2 rounded"></select>
-                <input type="number" id="edit-bill-amount" placeholder="金额" class="w-full border p-2 rounded">
-                <input type="text" id="edit-bill-note" placeholder="备注" class="w-full border p-2 rounded">
-            </div>
-            <div class="flex gap-2 mt-4">
-                <button onclick="updateBill()" class="flex-1 py-2 bg-primary text-white rounded">保存修改</button>
-                <button onclick="deleteEditBill()" class="flex-1 py-2 bg-red-500 text-white rounded">删除本条</button>
-                <button onclick="closeModal('modal-bill-edit')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!--新增分类弹窗-->
-    <div id="modal-category" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">新增分类</h3>
-            <input type="text" id="category-name" placeholder="分类名称" class="w-full border p-2 rounded">
-            <div class="flex gap-2 mt-4">
-                <button onclick="saveCategory()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-                <button onclick="closeModal('modal-category')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!--记事本弹窗-->
-    <div id="modal-note" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">新建笔记</h3>
-            <input type="text" id="note-title" placeholder="标题" class="w-full border p-2 rounded mb-2">
-            <textarea id="note-content" rows="5" placeholder="内容" class="w-full border p-2 rounded"></textarea>
-            <div class="flex gap-2 mt-4">
-                <button onclick="saveNote()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-                <button onclick="closeModal('modal-note')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!--项目弹窗-->
-    <div id="modal-project" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm max-h-[80vh] overflow-y-auto">
-            <h3 class="font-bold mb-3">新建项目</h3>
-            <input type="text" id="project-name" placeholder="项目名称" class="w-full border p-2 rounded mb-2">
-            <div id="step-list" class="space-y-2 mb-3"></div>
-            <button onclick="addStep()" class="text-primary mb-2"><i class="fa fa-plus"></i> 添加步骤</button>
-            <div class="flex gap-2">
-                <button onclick="saveProject()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-                <button onclick="closeModal('modal-project')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!--待办弹窗-->
-    <div id="modal-todo" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">新增待办</h3>
-            <input type="text" id="todo-text" placeholder="待办内容" class="w-full border p-2 rounded mb-2">
-            <input type="datetime-local" id="todo-time" class="w-full border p-2 rounded">
-            <div class="flex gap-2 mt-4">
-                <button onclick="saveTodo()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-                <button onclick="closeModal('modal-todo')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!--打卡弹窗-->
-    <div id="modal-checkin" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">新增打卡项目</h3>
-            <input type="text" id="checkin-name" placeholder="打卡名称" class="w-full border p-2 rounded">
-            <div class="flex gap-2 mt-4">
-                <button onclick="saveCheckin()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-                <button onclick="closeModal('modal-checkin')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!--查询打卡弹窗（支持删除某天打卡记录）【修改】-->
-    <div id="modal-checkin-query" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">查询某日打卡</h3>
-            <input type="date" id="query-checkin-date" class="w-full border p-2 rounded mb-3">
-            <div id="query-checkin-result" class="mb-3 text-sm max-h-48 overflow-y-auto"></div>
-            <div class="flex gap-2">
-                <button onclick="queryCheckinDate()" class="flex-1 py-2 bg-primary text-white rounded">查询</button>
-                <button onclick="closeModal('modal-checkin-query')" class="flex-1 py-2 bg-gray-200 rounded">关闭</button>
-            </div>
-        </div>
-    </div>
-
-    <!--每月定额消费弹窗-->
-    <div id="modal-fixedbill" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-            <h3 class="font-bold mb-3">新增每月定额消费</h3>
-            <input type="text" id="fixed-name" placeholder="名称（房租/话费）" class="w-full border p-2 rounded mb-2">
-            <select id="fixed-cat" class="w-full border p-2 rounded mb-2"></select>
-            <input type="number" id="fixed-amount" placeholder="每月金额" class="w-full border p-2 rounded mb-2">
-            <div class="flex gap-2 mt-4">
-                <button onclick="saveFixedBill()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-                <button onclick="closeModal('modal-fixedbill')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
-<!-- ==========新增：打卡分组弹窗 ========== -->
-<div id="modal-checkin-group" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+
+<!-- 选择定额卡片弹窗 -->
+<div id="modal-select-fixed" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm max-h-[70vh] overflow-y-auto">
+    <h3 class="font-bold mb-3">选择定额卡片一键记账</h3>
+    <div id="select-fixed-list" class="space-y-2"></div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="closeModal('modal-select-fixed')" class="flex-1 py-2 bg-gray-200 rounded">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑账单弹窗 -->
+<div id="modal-bill-edit" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">编辑账目</h3>
+    <input type="hidden" id="edit-bill-index" />
+    <div class="space-y-2">
+      <input type="date" id="edit-bill-date" class="w-full border p-2 rounded" />
+      <select id="edit-bill-type" class="w-full border p-2 rounded">
+        <option value="income">收入</option>
+        <option value="expense">支出</option>
+      </select>
+      <select id="edit-bill-category" class="w-full border p-2 rounded"></select>
+      <input type="number" id="edit-bill-amount" placeholder="金额" class="w-full border p-2 rounded" />
+      <input type="text" id="edit-bill-note" placeholder="备注" class="w-full border p-2 rounded" />
+    </div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="updateBill()" class="flex-1 py-2 bg-primary text-white rounded">保存修改</button>
+      <button onclick="deleteEditBill()" class="flex-1 py-2 bg-red-500 text-white rounded">删除本条</button>
+      <button onclick="closeModal('modal-bill-edit')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增分类弹窗 -->
+<div id="modal-category" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">新增分类</h3>
+    <input type="text" id="category-name" placeholder="分类名称" class="w-full border p-2 rounded" />
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveCategory()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-category')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑分类弹窗 -->
+<div id="modal-category-edit" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">编辑分类名称</h3>
+    <input type="hidden" id="edit_cat_idx" />
+    <input type="text" id="edit_cat_name" placeholder="新分类名称" class="w-full border p-2 rounded mb-3" />
+    <div class="flex gap-2">
+      <button onclick="updateCategory()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-category-edit')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增定额弹窗 -->
+<div id="modal-fixedbill" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">新增定额</h3>
+    <select id="fixed-type" class="w-full border p-2 rounded mb-2">
+      <option value="month">每月定额</option>
+      <option value="day">每日定额</option>
+    </select>
+    <input type="text" id="fixed-name" placeholder="名称（房租/话费）" class="w-full border p-2 rounded mb-2" />
+    <select id="fixed-cat" class="w-full border p-2 rounded mb-2"></select>
+    <input type="number" id="fixed-amount" placeholder="金额" class="w-full border p-2 rounded mb-2" />
+    <input type="text" id="fixed-note" placeholder="备注" class="w-full border p-2 rounded mb-2" />
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveFixedBill()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-fixedbill')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑定额弹窗 -->
+<div id="modal-fixed-edit" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">编辑定额</h3>
+    <input type="hidden" id="edit-fixed-idx" />
+    <select id="edit-fixed-type" class="w-full border p-2 rounded mb-2">
+      <option value="month">每月定额</option>
+      <option value="day">每日定额</option>
+    </select>
+    <input type="text" id="edit-fixed-name" placeholder="名称" class="w-full border p-2 rounded mb-2" />
+    <select id="edit-fixed-cat" class="w-full border p-2 rounded mb-2"></select>
+    <input type="number" id="edit-fixed-amount" placeholder="金额" class="w-full border p-2 rounded mb-2" />
+    <input type="text" id="edit-fixed-note" placeholder="备注" class="w-full border p-2 rounded mb-2" />
+    <div class="flex gap-2 mt-4">
+      <button onclick="updateFixedBill()" class="flex-1 py-2 bg-primary text-white rounded">保存修改</button>
+      <button onclick="deleteFixedBillByIdx()" class="flex-1 py-2 bg-red-500 text-white rounded">删除</button>
+      <button onclick="closeModal('modal-fixed-edit')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 记事本弹窗 -->
+<div id="modal-note" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">新建笔记</h3>
+    <input type="text" id="note-title" placeholder="标题" class="w-full border p-2 rounded mb-2" />
+    <textarea id="note-content" rows="5" placeholder="内容" class="w-full border p-2 rounded"></textarea>
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveNote()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-note')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 项目弹窗 -->
+<div id="modal-project" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm max-h-[80vh] overflow-y-auto">
+    <h3 class="font-bold mb-3">新建项目</h3>
+    <input type="text" id="project-name" placeholder="项目名称" class="w-full border p-2 rounded mb-2" />
+    <div id="step-list" class="space-y-2 mb-3"></div>
+    <button onclick="addStep()" class="text-primary mb-2"><i class="fa fa-plus"></i> 添加步骤</button>
+    <div class="flex gap-2">
+      <button onclick="saveProject()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-project')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 待办弹窗 -->
+<div id="modal-todo" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">新增待办</h3>
+    <input type="text" id="todo-text" placeholder="待办内容" class="w-full border p-2 rounded mb-2" />
+    <input type="datetime-local" id="todo-time" class="w-full border p-2 rounded" />
+    <div class="flex gap-2 mt-4">
+      <button onclick="saveTodo()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-todo')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 打卡-新建分类弹窗 -->
+<div id="modal-checkin-cat-add" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">新建打卡分类</h3>
+    <input type="text" id="chk_cat_name" placeholder="分类名称" class="w-full border p-2 rounded mb-3" />
+    <div class="flex gap-2">
+      <button onclick="saveCheckinCat()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-checkin-cat-add')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 打卡-编辑分类弹窗 -->
+<div id="modal-checkin-cat-edit" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">编辑打卡分类</h3>
+    <input type="hidden" id="edit_chk_cat_id" />
+    <input type="text" id="edit_chk_cat_name" placeholder="分类名称" class="w-full border p-2 rounded mb-3" />
+    <div class="flex gap-2">
+      <button onclick="updateCheckinCat()" class="flex-1 py-2 bg-primary text-white rounded">保存修改</button>
+      <button onclick="closeModal('modal-checkin-cat-edit')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 打卡-新建打卡项目弹窗 -->
+<div id="modal-checkin-add" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">新建打卡项目</h3>
+    <select id="chk_item_cat_sel" class="w-full border p-2 rounded mb-2"></select>
+    <input type="text" id="chk_item_name" placeholder="打卡名称" class="w-full border p-2 rounded mb-2" />
+    <input type="text" id="chk_item_note" placeholder="备注" class="w-full border p-2 rounded mb-3" />
+    <div class="flex gap-2">
+      <button onclick="saveCheckinItem()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
+      <button onclick="closeModal('modal-checkin-add')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 打卡-编辑打卡项弹窗 -->
+<div id="modal-checkin-item-edit" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
     <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-        <h3 class="font-bold mb-3">新建打卡分组</h3>
-        <input type="text" id="checkin-group-name" placeholder="分组名称" class="w-full border p-2 rounded mb-3">
+        <h3 class="font-bold mb-3">编辑打卡项目</h3>
+        <input type="hidden" id="edit_chk_item_idx" />
+        <select id="edit_chk_item_cat" class="w-full border p-2 rounded mb-2"></select>
+        <input type="text" id="edit_chk_item_name" placeholder="打卡名称" class="w-full border p-2 rounded mb-2" />
+        <input type="text" id="edit_chk_item_note" placeholder="备注" class="w-full border p-2 rounded mb-2" />
+        <!-- 新增：可编辑打卡日期，多个日期用英文逗号隔开 -->
+        <label class="block text-sm mb-1">打卡日期</label>
+        <input type="text" id="edit_chk_records" class="w-full border p-2 rounded mb-3" />
         <div class="flex gap-2">
-            <button onclick="saveCheckinGroup()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-            <button onclick="closeModal('modal-checkin-group')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
+            <button onclick="updateCheckinItem()" class="flex-1 py-2 bg-primary text-white rounded">保存修改</button>
+            <button onclick="closeModal('modal-checkin-item-edit')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
         </div>
     </div>
 </div>
 
-<!-- ==========修改：新增打卡弹窗，增加分组下拉 ========== -->
-<div id="modal-checkin" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-        <h3 class="font-bold mb-3">新增打卡项目</h3>
-        <select id="checkin-select-group" class="w-full border p-2 rounded mb-2"></select>
-        <input type="text" id="checkin-name" placeholder="打卡名称" class="w-full border p-2 rounded">
-        <div class="flex gap-2 mt-4">
-            <button onclick="saveCheckin()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-            <button onclick="closeModal('modal-checkin')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-        </div>
-    </div>
-</div>
-
-<!-- ==========新增：打卡分组弹窗 ========== -->
-<div id="modal-checkin-group" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-        <h3 class="font-bold mb-3">新建打卡分组</h3>
-        <input type="text" id="checkin-group-name" placeholder="分组名称" class="w-full border p-2 rounded mb-3">
-        <div class="flex gap-2">
-            <button onclick="saveCheckinGroup()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-            <button onclick="closeModal('modal-checkin-group')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-        </div>
-    </div>
-</div>
-
-<!-- ==========修改：新增打卡弹窗，增加分组下拉 ========== -->
-<div id="modal-checkin" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-        <h3 class="font-bold mb-3">新增打卡项目</h3>
-        <select id="checkin-select-group" class="w-full border p-2 rounded mb-2"></select>
-        <input type="text" id="checkin-name" placeholder="打卡名称" class="w-full border p-2 rounded">
-        <div class="flex gap-2 mt-4">
-            <button onclick="saveCheckin()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-            <button onclick="closeModal('modal-checkin')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-        </div>
-    </div>
-</div>
-
-<!-- ==========新增：备份导入弹窗 ========== -->
+<!-- 数据备份弹窗 -->
 <div id="modal-backup" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-        <h3 class="font-bold mb-3">数据备份 / 导入</h3>
-        <div class="space-y-3">
-            <button onclick="exportAllData()" class="w-full py-2 bg-primary text-white rounded">导出全部数据备份(json)</button>
-            <div>
-                <label class="block text-sm mb-1">从备份文件导入(会合并现有数据)</label>
-                <input type="file" accept=".json" id="import-file" class="w-full">
-                <button onclick="importAllData()" class="w-full mt-2 py-2 bg-orange-500 text-white rounded">执行导入</button>
-            </div>
-        </div>
-        <button onclick="closeModal('modal-backup')" class="w-full mt-3 py-2 bg-gray-200 rounded">关闭</button>
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <h3 class="font-bold mb-3">数据备份 / 导入</h3>
+    <div class="space-y-3">
+      <button onclick="exportAllData()" class="w-full py-2 bg-primary text-white rounded">导出全部数据备份(json)</button>
+      <div>
+        <label class="block text-sm mb-1">从备份文件导入(合并现有数据)</label>
+        <input type="file" accept=".json" id="import-file" class="w-full" />
+        <button onclick="importAllData()" class="w-full mt-2 py-2 bg-orange-500 text-white rounded">执行导入</button>
+      </div>
     </div>
+    <button onclick="closeModal('modal-backup')" class="w-full mt-3 py-2 bg-gray-200 rounded">关闭</button>
+  </div>
 </div>
-
-<!--打卡分组重命名弹窗-->
-<div id="modal-rename-group" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg p-4 w-full max-w-sm">
-        <h3 class="font-bold mb-3">重命名分组</h3>
-        <input type="hidden" id="rename_group_id">
-        <input type="text" id="rename_group_name" placeholder="输入新分组名称" class="w-full border p-2 rounded mb-3">
-        <div class="flex gap-2">
-            <button onclick="saveRenameGroup()" class="flex-1 py-2 bg-primary text-white rounded">保存</button>
-            <button onclick="closeModal('modal-rename-group')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
-        </div>
-    </div>
-</div>
-
-
 
 <script>
 let currentPage = "home";
 const STORAGE_KEYS = {
-    bills: "tool_bills",
-    categories: "tool_categories",
-    notes: "tool_notes",
-    projects: "tool_projects",
-    todos: "tool_todos",
-    checkins: "tool_checkins",
-    bg: "tool_bg",
-    fixedBills: "tool_fixedBills",
-    //新增
-    checkinGroups:"tool_checkinGroups"
+  bills: "tool_bills",
+  categories: "tool_categories",
+  notes: "tool_notes",
+  projects: "tool_projects",
+  todos: "tool_todos",
+  checkins: "tool_checkins",
+  bg: "tool_bg",
+  fixedBills: "tool_fixedBills",
+  checkinItemCats: "tool_checkinItemCats",
+  checkinItems: "tool_checkinItems"
 };
 
 let data = {
-    bills: JSON.parse(localStorage.getItem(STORAGE_KEYS.bills)) || [],
-    categories: JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || ["餐饮","交通","购物","工资"],
-    notes: JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || [],
-    projects: JSON.parse(localStorage.getItem(STORAGE_KEYS.projects)) || [],
-    todos: JSON.parse(localStorage.getItem(STORAGE_KEYS.todos)) || [],
-    checkins: JSON.parse(localStorage.getItem(STORAGE_KEYS.checkins)) || [],
-    // =========新增 打卡文件夹分类=========
-    checkinGroups: JSON.parse(localStorage.getItem("tool_checkinGroups")) || [
-        {id:"default", name:"默认分组"}
-    ]
+  bills: JSON.parse(localStorage.getItem(STORAGE_KEYS.bills)) || [],
+  categories: JSON.parse(localStorage.getItem(STORAGE_KEYS.categories)) || ["餐饮", "交通", "购物", "工资"],
+  notes: JSON.parse(localStorage.getItem(STORAGE_KEYS.notes)) || [],
+  projects: JSON.parse(localStorage.getItem(STORAGE_KEYS.projects)) || [],
+  todos: JSON.parse(localStorage.getItem(STORAGE_KEYS.todos)) || [],
+  checkinItemCats: JSON.parse(localStorage.getItem(STORAGE_KEYS.checkinItemCats)) || [
+    { catId: "def", catName: "默认分类" }
+  ],
+  checkinItems: JSON.parse(localStorage.getItem(STORAGE_KEYS.checkinItems)) || []
 };
 
 let fixedBills = JSON.parse(localStorage.getItem(STORAGE_KEYS.fixedBills)) || [];
-let timerInfo = { total:0, remain:0, timerId:null, running:false }
+let timerInfo = { total: 0, remain: 0, timerId: null, running: false };
 let stepTempList = [];
 let billFilter = { singleDate: "" };
 let pieChart = null;
 let lineChart = null;
 
+function openModal(id) {
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add("hidden");
+}
+
 function renderPage(pageName) {
-    if(timerInfo.running){ pauseTimer(); }
-    currentPage = pageName;
-    const container = document.getElementById("page-container");
-    container.innerHTML = "";
-    switch(pageName){
-        case "home": renderHomePage(container); break;
-        case "book": renderBookPage(container); break;
-        case "record": renderRecordPage(container); break;
-        case "todo": renderTodoPage(container); break;
-        case "checkin": renderCheckinPage(container); break;
-        case "focus": renderFocusPage(container); break;
-    }
+  if (timerInfo.running) pauseTimer();
+  currentPage = pageName;
+  const container = document.getElementById("page-container");
+  container.innerHTML = "";
+  switch (pageName) {
+    case "home": renderHomePage(container); break;
+    case "book": renderBookPage(container); break;
+    case "record": renderRecordPage(container); break;
+    case "todo": renderTodoPage(container); break;
+    case "checkin": renderCheckinPage(container); break;
+    case "focus": renderFocusPage(container); break;
+  }
 }
 
-function renderHomePage(box){
-    box.innerHTML = `<div class="h-full flex items-center justify-center text-gray-500 text-lg"><div>点击左侧图标进入功能</div></div>`;
+function renderHomePage(box) {
+  box.innerHTML = `
+    <div class="h-full flex items-center justify-center text-gray-500 text-lg">
+      <div>点击左侧图标进入功能</div>
+    </div>`;
 }
 
-function renderBookPage(box){
-    box.innerHTML = `
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
-                <h2 class="text-xl font-bold">记账本</h2>
-                <button onclick="openAddBillModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
-            </div>
-            <div class="mb-4">
-                <div class="flex justify-between mb-2">
-                    <span class="font-semibold">分类列表（长按分类开启删除）</span>
-                    <button onclick="openAddCategoryModal()" class="text-primary text-sm">新增分类</button>
-                </div>
-                <div id="category-list" class="flex flex-wrap gap-2"></div>
-            </div>
-
-            <!--【新增】按月查询某分类开销模块 -->
-            <div class="mb-4 p-3 bg-white/70 rounded-lg">
-                <div class="font-semibold mb-2">按月查询分类开销</div>
-                <div class="flex gap-2 mb-2 flex-wrap">
-                    <input type="month" id="stat-month-cat" class="flex-1 border p-2 rounded">
-                    <select id="stat-select-cat" class="flex-1 border p-2 rounded"></select>
-                </div>
-                <button onclick="queryMonthCategoryCost()" class="w-full py-2 bg-primary text-white rounded mb-2">查询</button>
-                <div id="month-cat-result" class="text-sm"></div>
-            </div>
-
-            <div class="mb-4 p-3 bg-white/70 rounded-lg">
-                <div class="font-semibold mb-2">按分类查看开销</div>
-                <select id="select-category-stat" onchange="renderCategoryStat()" class="w-full border p-2 rounded mb-2">
-                    <option value="">请选择分类</option>
-                </select>
-                <div id="category-stat-info"></div>
-            </div>
-
-            <div class="mb-4 p-3 bg-white/70 rounded-lg">
-                <div class="font-semibold mb-2">选择日期查看当日花销</div>
-                <div class="mb-2">
-                    <input type="date" id="filter-single-date" class="w-full border p-2 rounded">
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="filterBillBySingleDate()" class="flex-1 py-2 bg-primary text-white rounded">查看当日</button>
-                    <button onclick="clearBillFilter()" class="flex-1 py-2 bg-gray-300 rounded">取消筛选</button>
-                </div>
-                <div id="filter-tip" class="mt-2 text-sm text-gray-600"></div>
-            </div>
-
-            <div class="mb-4 p-3 bg-white/70 rounded-lg">
-                <div class="font-semibold mb-2">图表统计</div>
-                <div class="flex gap-2 mb-2 flex-wrap">
-                    <select id="chart-type-select" class="flex-1 border p-2 rounded">
-                        <option value="pie">饼图：当月各分类消费对比</option>
-                        <option value="line">折线图：单分类月度趋势</option>
-                    </select>
-                    <input type="month" id="chart-month-pie" class="border p-2 rounded">
-                    <select id="chart-category-line" class="border p-2 rounded hidden"></select>
-                </div>
-                <div style="height:260px">
-                    <canvas id="chart-canvas"></canvas>
-                </div>
-            </div>
-
-            <div class="mb-4 p-3 bg-white/70 rounded-lg">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="font-semibold">每月定额消费(房租/话费)</div>
-                    <button onclick="openFixedBillModal()" class="text-primary text-sm">新增定额</button>
-                </div>
-                <div id="fixed-bill-list" class="space-y-2"></div>
-            </div>
-
-            <div class="mb-4 p-3 bg-white/70 rounded-lg">
-                <div class="font-semibold mb-2">收支统计</div>
-                <div id="bill-stat"></div>
-            </div>
-
-            <div class="font-semibold mb-2">账目记录
-                <div class="text-xs text-gray-400">颜色圆点：>1000黑｜>500红｜>100橙｜>50紫｜>20黄｜≤20绿；点击条目可编辑</div>
-            </div>
-            <div id="bill-list" class="space-y-2"></div>
+function renderBookPage(box) {
+  const todayStr = new Date().toISOString().split("T")[0];
+  box.innerHTML = `
+    <div class="p-4">
+      <div class="flex justify-between items-center mb-4">
+        <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
+        <h2 class="text-xl font-bold">记账本</h2>
+        <div class="flex gap-2">
+          <button onclick="openModal('modal-category')" class="px-2 py-1 bg-gray-300 rounded text-sm">新建分类</button>
+          <button onclick="openAddBillModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
         </div>
-    `;
-    document.getElementById('chart-type-select').onchange = renderChartArea;
-    renderCategoryList();
-    renderCategorySelectOptions();
-    //填充【按月查询分类开销】下拉
-    const statCatSel = document.getElementById('stat-select-cat');
-    statCatSel.innerHTML = `<option value="">请选择分类</option>`;
-    data.categories.forEach(c=> statCatSel.innerHTML += `<option value="${c}">${c}</option>`);
+      </div>
 
-    renderCategoryStat();
-    renderBillList();
-    renderBillStat();
-    renderFixedBillList();
-    renderChartArea();
-}
-
-//支出圆点颜色
-function getExpenseDotClass(amount){
-    if(amount>1000) return 'bg-black';
-    if(amount>500) return 'bg-red-500';
-    if(amount>100) return 'bg-orange-500';
-    if(amount>50) return 'bg-purple-500';
-    if(amount>20) return 'bg-yellow-500';
-    return 'bg-green-500';
-}
-//文字颜色
-function getAmountColor(amount){
-    if(amount>1000) return 'text-black';
-    if(amount>500) return 'text-red-600';
-    if(amount>100) return 'text-orange-500';
-    if(amount>50) return 'text-purple-600';
-    if(amount>20) return 'text-yellow-600';
-    return 'text-green-600';
-}
-
-//【新增】按月查询某分类开销
-function queryMonthCategoryCost(){
-    const month = document.getElementById("stat-month-cat").value;
-    const cat = document.getElementById("stat-select-cat").value;
-    const resBox = document.getElementById("month-cat-result");
-    if(!month || !cat){
-        resBox.innerHTML = "<div class='text-red-500'>请选择月份和分类</div>";
-        return;
-    }
-    const list = data.bills.filter(b=> b.type==="expense" && b.category===cat && b.date.startsWith(month));
-    let total = 0;
-    let dayMap = {};
-    list.forEach(b=>{
-        total += b.amount;
-        if(!dayMap[b.date]) dayMap[b.date]=0;
-        dayMap[b.date] += b.amount;
-    })
-    let html = `<div class="font-semibold">${month}｜${cat}｜总支出：<span class="${getAmountColor(total)}">${total}</span></div>`;
-    Object.keys(dayMap).sort().forEach(d=>{
-        html += `<div class="flex justify-between"><span>${d}</span><span class="${getAmountColor(dayMap[d])}">${dayMap[d]}</span></div>`;
-    })
-    if(list.length===0) html += `<div class="text-gray-400 mt-1">该月该分类暂无消费记录</div>`;
-    resBox.innerHTML = html;
-}
-
-function renderCategorySelectOptions(){
-    const sel = document.getElementById("select-category-stat");
-    sel.innerHTML = `<option value="">请选择分类</option>`;
-    data.categories.forEach(c=> sel.innerHTML += `<option value="${c}">${c}</option>`);
-}
-function renderCategoryStat(){
-    const sel = document.getElementById("select-category-stat");
-    const targetCat = sel.value;
-    const infoBox = document.getElementById("category-stat-info");
-    if(!targetCat){
-        infoBox.innerHTML = `<div class="text-gray-500">选择上方分类，查看该分类每日开销明细</div>`;
-        return;
-    }
-    const catBills = data.bills.filter(b=>b.category === targetCat && b.type === "expense");
-    let total = 0;
-    const dayMap = {};
-    catBills.forEach(b=>{
-        total += b.amount;
-        if(!dayMap[b.date]) dayMap[b.date] = 0;
-        dayMap[b.date] += b.amount;
-    })
-    let dayHtml = "";
-    Object.keys(dayMap).sort().forEach(d=>{
-        const val = dayMap[d];
-        dayHtml += `<div class="flex justify-between"><span>${d}</span><span class="${getAmountColor(val)}">${val}</span></div>`
-    })
-    infoBox.innerHTML = `
-        <div class="mb-2">【${targetCat}】总支出：<span class="${getAmountColor(total)} font-bold">${total}</span></div>
-        <div class="text-sm">每日明细：${catBills.length === 0 ? '<div>暂无记录</div>' : dayHtml}</div>
-    `
-}
-
-//【彻底修复折线图】每次切换下拉，完全销毁旧实例，重新绘制
-function renderChartArea(){
-    const typeSel = document.getElementById("chart-type-select");
-    const pieMonthInput = document.getElementById("chart-month-pie");
-    const lineCatSel = document.getElementById("chart-category-line");
-    const chartType = typeSel.value;
-    //强制销毁
-    if(pieChart){ pieChart.destroy(); pieChart=null; }
-    if(lineChart){ lineChart.destroy(); lineChart=null; }
-
-    if(chartType === "pie"){
-        pieMonthInput.classList.remove("hidden");
-        lineCatSel.classList.add("hidden");
-        const month = pieMonthInput.value;
-        if(!month) return;
-        const monthBills = data.bills.filter(b=> b.type === "expense" && b.date.startsWith(month));
-        const catSum = {};
-        monthBills.forEach(b=>{
-            if(!catSum[b.category]) catSum[b.category]=0;
-            catSum[b.category] += b.amount;
-        })
-        const labels = Object.keys(catSum);
-        const values = Object.values(catSum);
-        const ctx = document.getElementById("chart-canvas").getContext("2d");
-        pieChart = new Chart(ctx,{
-            type:"pie",
-            data:{ labels:labels, datasets:[{data:values}] },
-            options:{responsive:true, maintainAspectRatio:false}
-        })
-    }else if(chartType === "line"){
-        pieMonthInput.classList.add("hidden");
-        lineCatSel.classList.remove("hidden");
-        lineCatSel.innerHTML = "";
-        data.categories.forEach(c=> lineCatSel.innerHTML += `<option value="${c}">${c}</option>`);
-        lineCatSel.onchange = renderChartArea;
-        const selectedCat = lineCatSel.value;
-        const catBills = data.bills.filter(b=>b.type==="expense" && b.category === selectedCat);
-        const monthSum = {};
-        catBills.forEach(b=>{
-            const m = b.date.substring(0,7);
-            if(!monthSum[m]) monthSum[m]=0;
-            monthSum[m] += b.amount;
-        })
-        const sortedMonths = Object.keys(monthSum).sort();
-        const values = sortedMonths.map(m=>monthSum[m]);
-        const ctx = document.getElementById("chart-canvas").getContext("2d");
-        lineChart = new Chart(ctx,{
-            type:"line",
-            data:{
-                labels:sortedMonths,
-                datasets:[{ label:selectedCat+"月度消费", data:values, fill:false }]
-            },
-            options:{responsive:true, maintainAspectRatio:false}
-        })
-    }
-}
-
-function renderRecordPage(box){
-    box.innerHTML = `
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
-                <h2 class="text-xl font-bold">记录</h2>
-                <div></div>
-            </div>
-            <div class="flex gap-2 mb-4">
-                <button onclick="switchRecordTab('note')" id="tab-note" class="px-3 py-1 rounded bg-primary text-white">记事本</button>
-                <button onclick="switchRecordTab('project')" id="tab-project" class="px-3 py-1 rounded bg-gray-200">项目记录</button>
-            </div>
-            <div id="note-panel">
-                <button onclick="openAddNoteModal()" class="mb-4 text-primary"><i class="fa fa-plus"></i> 新建笔记</button>
-                <div id="note-list" class="space-y-2"></div>
-            </div>
-            <div id="project-panel" class="hidden">
-                <button onclick="openAddProjectModal()" class="mb-4 text-primary"><i class="fa fa-plus"></i> 新建项目</button>
-                <div id="project-list" class="space-y-2"></div>
-            </div>
+      <div class="mb-4 p-3 bg-white/70 rounded-lg">
+        <div class="font-semibold mb-2">查看每日花销</div>
+        <div class="flex gap-2 mb-2 flex-wrap">
+          <input type="date" id="filter-single-date" class="flex-1 border p-2 rounded" value="${todayStr}" />
+          <button onclick="filterBillBySingleDate()" class="px-3 py-2 bg-primary text-white rounded">查询</button>
+          <button onclick="clearBillFilter()" class="px-3 py-2 bg-gray-300 rounded">清除筛选</button>
         </div>
-    `;
-    renderNoteList(); renderProjectList();
-}
-function renderTodoPage(box){
-    box.innerHTML = `
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
-                <h2 class="text-xl font-bold">待办事项</h2>
-                <button onclick="openAddTodoModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
-            </div>
-            <div id="todo-list" class="space-y-2"></div>
+        <div id="filter-tip" class="text-sm text-gray-600 mb-2"></div>
+        <div id="day-bill-wrap"></div>
+      </div>
+
+      <div class="mb-4 p-3 bg-white/70 rounded-lg">
+        <div class="flex justify-between items-center mb-2">
+          <div class="font-semibold">定额（每月/每日）</div>
+          <button onclick="openFixedBillModal()" class="text-primary text-sm">新增定额</button>
         </div>
-    `;
-    renderTodoList();
-}
-function renderCheckinPage(box){
-    box.innerHTML = `
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
-                <h2 class="text-xl font-bold">每日打卡</h2>
-                <div>
-                    <button onclick="openModal('modal-checkin-group')" class="px-2 py-1 bg-gray-300 rounded text-sm mr-1">新建分组</button>
-                    <button onclick="openModal('modal-checkin-query')" class="px-2 py-1 bg-gray-300 rounded text-sm mr-1">查询日期</button>
-                    <button onclick="openAddCheckinModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
-                </div>
-            </div>
-            <div id="checkin-list" class="space-y-4"></div>
+        <div id="fixed-bill-list" class="space-y-2"></div>
+      </div>
+
+      <div class="mb-4 p-3 bg-white/70 rounded-lg">
+        <div class="font-semibold mb-2">按月查询分类开销</div>
+        <div class="flex gap-2 mb-2 flex-wrap">
+          <input type="month" id="stat-month-cat" class="flex-1 border p-2 rounded" />
+          <select id="stat-select-cat" class="flex-1 border p-2 rounded"></select>
         </div>
-    `;
-    renderCheckinList();
+        <button onclick="queryMonthCategoryCost()" class="w-full py-2 bg-primary text-white rounded mb-2">查询</button>
+        <div id="month-cat-result" class="text-sm"></div>
+      </div>
+
+      <div class="mb-4 p-3 bg-white/70 rounded-lg">
+        <div class="font-semibold mb-2">图表统计</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <div class="mb-2">
+              <label>饼图：当月分类支出</label>
+              <input type="month" id="chart-month-pie" class="w-full border p-2 rounded mt-1" />
+            </div>
+            <div style="height:240px">
+              <canvas id="chart-pie"></canvas>
+            </div>
+          </div>
+          <div>
+            <div class="mb-2">
+              <label>折线图：选择分类 + 基准月份（展示基准月前后各3个月）</label>
+              <select id="chart-line-cat" class="w-full border p-2 rounded mt-1 mb-1"></select>
+              <input type="month" id="chart-line-base-month" class="w-full border p-2 rounded" />
+            </div>
+            <div style="height:240px">
+              <canvas id="chart-line"></canvas>
+            </div>
+          </div>
+        </div>
+        <button onclick="renderAllChart()" class="w-full mt-3 py-2 bg-primary text-white rounded">生成图表</button>
+      </div>
+
+      <div class="mb-4 p-3 bg-white/70 rounded-lg">
+        <div class="font-semibold mb-2">收支统计</div>
+        <div id="bill-stat"></div>
+      </div>
+
+      <div class="font-semibold mb-2">全部账目（卡片）
+        <div class="text-xs text-gray-400">点击卡片可编辑</div>
+      </div>
+      <div id="bill-list" class="space-y-3"></div>
+    </div>
+  `;
+
+  renderCategoryList();
+  renderCategorySelectOptions();
+
+  const statCatSel = document.getElementById("stat-select-cat");
+  statCatSel.innerHTML = `<option value="">请选择分类</option>`;
+  data.categories.forEach(c => {
+    statCatSel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+
+  renderBillStat();
+  renderFixedBillList();
+  filterBillBySingleDate();
+  renderAllChart();
 }
 
-function renderFocusPage(box){
-    box.innerHTML = `
-        <div class="p-4 flex flex-col items-center justify-center h-full">
-            <div class="w-full flex justify-start mb-6">
-                <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
-            </div>
-            <div class="relative w-64 h-64 mb-6">
-                <svg class="timer-ring w-full h-full" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" stroke-width="8" />
-                    <circle id="timer-progress" cx="50" cy="50" r="45" fill="none" stroke="#3b82f6" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="0" />
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <div id="timer-text" class="text-4xl font-bold">00:00:00</div>
-                </div>
-            </div>
-            <div class="flex gap-2 mb-4">
-                <input id="focus-h" type="number" min="0" placeholder="时" class="w-14 p-2 rounded border text-center">
-                <input id="focus-m" type="number" min="0" placeholder="分" class="w-14 p-2 rounded border text-center">
-                <input id="focus-s" type="number" min="0" placeholder="秒" class="w-full border p-2 rounded">
-            </div>
-            <div class="flex gap-3">
-                <button onclick="startTimer()" class="px-4 py-2 bg-primary text-white rounded">开始</button>
-                <button onclick="pauseTimer()" class="px-4 py-2 bg-gray-400 text-white rounded">暂停</button>
-                <button onclick="resetTimer()" class="px-4 py-2 bg-red-400 text-white rounded">重置</button>
-            </div>
-        </div>
-    `;
-    updateTimerUI();
+function getExpenseDotClass(amount) {
+  if (amount > 1000) return "bg-black";
+  if (amount > 500) return "bg-red-500";
+  if (amount > 100) return "bg-orange-500";
+  if (amount > 50) return "bg-purple-500";
+  if (amount > 20) return "bg-yellow-500";
+  return "bg-green-500";
 }
 
-function switchRecordTab(tab){
-    document.getElementById('note-panel').classList.toggle('hidden', tab!=='note');
-    document.getElementById('project-panel').classList.toggle('hidden', tab!=='project');
-    document.getElementById('tab-note').className = tab==='note' ? "px-3 py-1 rounded bg-primary text-white" : "px-3 py-1 rounded bg-gray-200";
-    document.getElementById('tab-project').className = tab==='project' ? "px-3 py-1 rounded bg-primary text-white" : "px-3 py-1 rounded bg-gray-200";
+function getAmountColor(amount) {
+  if (amount > 1000) return "text-black";
+  if (amount > 500) return "text-red-600";
+  if (amount > 100) return "text-orange-500";
+  if (amount > 50) return "text-purple-600";
+  if (amount > 20) return "text-yellow-600";
+  return "text-green-600";
 }
-function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
 
-//背景
-function openBgSetting(){ openModal('modal-bg'); }
-function setBgColor(){
-    const color = document.getElementById('bg-color').value;
-    document.querySelector('.bg-container').style.background = color;
-    localStorage.setItem(STORAGE_KEYS.bg, JSON.stringify({type:'color', val:color}));
+function renderCategoryList() {
+  const wrap = document.getElementById("category-list");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  data.categories.forEach((cat, idx) => {
+    const div = document.createElement("div");
+    div.className = "px-3 py-2 bg-white/80 rounded flex items-center gap-2";
+    div.innerHTML = `
+      ${cat}
+      <button onclick="openEditCategoryModal(${idx})" class="text-blue-500 text-sm">编辑</button>
+      <button onclick="delCategory(${idx})" class="text-red-500 text-sm">删除</button>`;
+    wrap.appendChild(div);
+  });
 }
-function uploadBgImage(){
-    const file = event.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = e=>{
-        document.querySelector('.bg-container').style.backgroundImage = `url(${e.target.result})`;
-        document.querySelector('.bg-container').style.backgroundSize = "cover";
-        document.querySelector('.bg-container').style.backgroundPosition = "center";
-        localStorage.setItem(STORAGE_KEYS.bg, JSON.stringify({type:'img', val:e.target.result}));
+
+function openEditCategoryModal(idx) {
+  openModal("modal-category-edit");
+  document.getElementById("edit_cat_idx").value = idx;
+  document.getElementById("edit_cat_name").value = data.categories[idx];
+}
+
+function updateCategory() {
+  const idx = Number(document.getElementById("edit_cat_idx").value);
+  const newName = document.getElementById("edit_cat_name").value.trim();
+  if (!newName) return alert("名称不能为空");
+  data.categories[idx] = newName;
+  saveData("categories");
+  closeModal("modal-category-edit");
+  renderPage("book");
+}
+
+function delCategory(idx) {
+  if (!confirm("确定删除该分类？")) return;
+  data.categories.splice(idx, 1);
+  saveData("categories");
+  renderPage("book");
+}
+
+function openAddCategoryModal() {
+  openModal("modal-category");
+  document.getElementById("category-name").value = "";
+}
+
+function saveCategory() {
+  const name = document.getElementById("category-name").value.trim();
+  if (!name) return alert("输入分类名");
+  data.categories.push(name);
+  saveData("categories");
+  closeModal("modal-category");
+  renderPage("book");
+}
+
+function openAddBillModal() {
+  openModal("modal-bill");
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("bill-date").value = today;
+  document.getElementById("bill-amount").value = "";
+  document.getElementById("bill-note").value = "";
+  const sel = document.getElementById("bill-category");
+  sel.innerHTML = "";
+  data.categories.forEach(c => {
+    sel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+}
+
+function openSelectFixedModal() {
+  openModal("modal-select-fixed");
+  const wrap = document.getElementById("select-fixed-list");
+  wrap.innerHTML = "";
+  if (fixedBills.length === 0) {
+    wrap.innerHTML = `<div class="text-gray-500 text-sm">暂无定额卡片，请先新增定额。</div>`;
+    return;
+  }
+  fixedBills.forEach((fb, idx) => {
+    const typeText = fb.type === "month" ? "每月定额" : "每日定额";
+    wrap.innerHTML += `
+      <div class="p-2 border rounded cursor-pointer" onclick="fillFixedToBill(${idx})">
+        <div>${typeText}｜${fb.name}｜${fb.amount}</div>
+        <div class="text-sm text-gray-500">分类：${fb.category} ${fb.note || ""}</div>
+      </div>`;
+  });
+}
+
+function fillFixedToBill(fixedIdx) {
+  const fb = fixedBills[fixedIdx];
+  document.getElementById("bill-category").value = fb.category;
+  document.getElementById("bill-amount").value = fb.amount;
+  document.getElementById("bill-note").value = fb.note || fb.name;
+  closeModal("modal-select-fixed");
+}
+
+function saveBill() {
+  const bill = {
+    date: document.getElementById("bill-date").value,
+    type: document.getElementById("bill-type").value,
+    category: document.getElementById("bill-category").value,
+    amount: Number(document.getElementById("bill-amount").value),
+    note: document.getElementById("bill-note").value
+  };
+  if (!bill.date || !bill.amount) return alert("填写日期和金额");
+  data.bills.push(bill);
+  saveData("bills");
+  closeModal("modal-bill");
+  renderPage("book");
+}
+
+function openEditBillModal(index) {
+  openModal("modal-bill-edit");
+  const b = data.bills[index];
+  document.getElementById("edit-bill-index").value = index;
+  document.getElementById("edit-bill-date").value = b.date;
+  document.getElementById("edit-bill-type").value = b.type;
+  const catSel = document.getElementById("edit-bill-category");
+  catSel.innerHTML = "";
+  data.categories.forEach(c => {
+    catSel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+  document.getElementById("edit-bill-category").value = b.category;
+  document.getElementById("edit-bill-amount").value = b.amount;
+  document.getElementById("edit-bill-note").value = b.note;
+}
+
+function updateBill() {
+  const idx = Number(document.getElementById("edit-bill-index").value);
+  data.bills[idx].date = document.getElementById("edit-bill-date").value;
+  data.bills[idx].type = document.getElementById("edit-bill-type").value;
+  data.bills[idx].category = document.getElementById("edit-bill-category").value;
+  data.bills[idx].amount = Number(document.getElementById("edit-bill-amount").value);
+  data.bills[idx].note = document.getElementById("edit-bill-note").value;
+  saveData("bills");
+  closeModal("modal-bill-edit");
+  renderPage("book");
+}
+
+function deleteEditBill() {
+  const idx = Number(document.getElementById("edit-bill-index").value);
+  if (!confirm("确定删除这条账单记录？")) return;
+  data.bills.splice(idx, 1);
+  saveData("bills");
+  closeModal("modal-bill-edit");
+  renderPage("book");
+}
+
+function renderBillList() {
+  const wrap = document.getElementById("bill-list");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  let list = [...data.bills];
+
+  if (billFilter.singleDate) {
+    const targetDate = new Date(billFilter.singleDate);
+    const targetY = targetDate.getFullYear();
+    const targetM = targetDate.getMonth();
+    const targetD = targetDate.getDate();
+    list = list.filter(b => {
+      const bd = new Date(b.date);
+      return bd.getFullYear() === targetY && bd.getMonth() === targetM && bd.getDate() === targetD;
+    });
+  }
+
+  list.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  list.forEach((b) => {
+    let amountText;
+    let dotHtml = "";
+
+    if (b.type === "income") {
+      amountText = `<span class="text-green-600">+${b.amount}</span>`;
+    } else {
+      amountText = `<span class="${getAmountColor(b.amount)}">-${b.amount}</span>`;
+      dotHtml = `<span class="dot-marker ${getExpenseDotClass(b.amount)}"></span>`;
     }
-    reader.readAsDataURL(file);
+
+    wrap.innerHTML += `
+      <div class="bg-white/85 p-3 rounded-lg shadow-sm cursor-pointer" onclick="openEditBillModal(${data.bills.indexOf(b)})">
+        <div class="flex justify-between items-center">
+          <div>${dotHtml}${b.date}｜${b.category}｜${b.note || "无备注"}</div>
+          <div class="font-bold">${amountText}</div>
+        </div>
+      </div>`;
+  });
 }
-function loadBg(){
-    const saved = localStorage.getItem(STORAGE_KEYS.bg);
-    if(!saved) return;
-    const bg = JSON.parse(saved);
-    if(bg.type === 'color'){
-        document.querySelector('.bg-container').style.background = bg.val;
+
+function filterBillBySingleDate() {
+  const d = document.getElementById("filter-single-date").value;
+  if (!d) {
+    document.getElementById("filter-tip").innerText = "请选择日期！";
+    return;
+  }
+  billFilter.singleDate = d;
+  document.getElementById("filter-tip").innerText = `正在查看：${d} 的花销`;
+  renderBillList();
+  const dayWrap = document.getElementById("day-bill-wrap");
+  const targetDate = new Date(d);
+  const y = targetDate.getFullYear();
+  const m = targetDate.getMonth();
+  const day = targetDate.getDate();
+  const dayBills = data.bills.filter(b => {
+    const bd = new Date(b.date);
+    return bd.getFullYear() === y && bd.getMonth() === m && bd.getDate() === day;
+  });
+  if (dayBills.length === 0) {
+    dayWrap.innerHTML = `<div class="text-gray-500">该日暂无账目记录</div>`;
+    return;
+  }
+  let dayHtml = `<div class="space-y-1">`;
+  let dayTotalIncome = 0;
+  let dayTotalExp = 0;
+  dayBills.forEach(b => {
+    if (b.type === "income") {
+      dayTotalIncome += b.amount;
+    } else {
+      dayTotalExp += b.amount;
+    }
+    if(b.type === "income"){
+      //收入绿色
+      dayHtml += `<div>${b.category} ${b.note||""} <span class="text-green-600">+${b.amount}</span></div>`;
     }else{
-        document.querySelector('.bg-container').style.backgroundImage = `url(${bg.val})`;
-        document.querySelector('.bg-container').style.backgroundSize = "cover";
-        document.querySelector('.bg-container').style.backgroundPosition = "center";
+      //支出调用getAmountColor拿到类名放到class属性
+      const cls = getAmountColor(b.amount);
+      dayHtml += `<div>${b.category} ${b.note||""} <span class="${cls}">-${b.amount}</span></div>`;
     }
+  });
+  dayHtml += `<div class="mt-2 font-semibold">当日：收入${dayTotalIncome}｜支出${dayTotalExp}｜结余${dayTotalIncome - dayTotalExp}</div></div>`;
+  dayWrap.innerHTML = dayHtml;
 }
 
-//记账模块
-function renderCategoryList(){
-    const wrap = document.getElementById('category-list');
-    wrap.innerHTML = "";
-    data.categories.forEach((cat, idx)=>{
-        const div = document.createElement('div');
-        div.className = "category-item longpress-target relative px-3 py-2 bg-white/80 rounded";
-        div.innerHTML = `${cat}<span class="del-mark absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center cursor-pointer" onclick="delCategory(${idx})">×</span>`;
-        let pressTimer;
-        div.addEventListener('touchstart', ()=>{ pressTimer = setTimeout(()=>div.classList.add('longpress'), 600); })
-        div.addEventListener('touchend', ()=>{ clearTimeout(pressTimer); })
-        wrap.appendChild(div);
-    })
+function clearBillFilter() {
+  billFilter.singleDate = "";
+  document.getElementById("filter-single-date").value = "";
+  document.getElementById("filter-tip").innerText = "";
+  document.getElementById("day-bill-wrap").innerHTML = "";
+  renderBillList();
 }
-function delCategory(idx){
-    data.categories.splice(idx,1);
-    saveData('categories');
-    renderPage('book');
-}
-function openAddCategoryModal(){ openModal('modal-category'); document.getElementById('category-name').value=""; }
-function saveCategory(){
-    const name = document.getElementById('category-name').value.trim();
-    if(!name) return alert('输入分类名');
-    data.categories.push(name);
-    saveData('categories');
-    closeModal('modal-category');
-    renderPage('book');
-}
-function openAddBillModal(){
-    openModal('modal-bill');
-    document.getElementById('bill-date').valueAsDate = new Date();
-    document.getElementById('bill-amount').value = "";
-    document.getElementById('bill-note').value = "";
-    const sel = document.getElementById('bill-category');
-    sel.innerHTML = "";
-    data.categories.forEach(c=> sel.innerHTML += `<option value="${c}">${c}</option>`);
-}
-function saveBill(){
-    const bill = {
-        date: document.getElementById('bill-date').value,
-        type: document.getElementById('bill-type').value,
-        category: document.getElementById('bill-category').value,
-        amount: Number(document.getElementById('bill-amount').value),
-        note: document.getElementById('bill-note').value
+
+function renderBillStat() {
+  let income = 0;
+  let expense = 0;
+  data.bills.forEach(b => {
+    if (b.type === "income") {
+      income += b.amount;
+    } else {
+      expense += b.amount;
     }
-    if(!bill.amount) return alert('填写金额');
-    data.bills.push(bill);
-    saveData('bills');
-    closeModal('modal-bill');
-    renderPage('book');
+  });
+  const el = document.getElementById("bill-stat");
+  if (el) {
+    el.innerHTML = `总收入：${income}｜总支出：<span class="${getAmountColor(expense)}">${expense}</span>｜结余：${income - expense}`;
+  }
 }
 
-//【新增打开编辑账单弹窗】
-function openEditBillModal(index){
-    openModal("modal-bill-edit");
-    const b = data.bills[index];
-    document.getElementById("edit-bill-index").value = index;
-    document.getElementById("edit-bill-date").value = b.date;
-    document.getElementById("edit-bill-type").value = b.type;
-    const catSel = document.getElementById("edit-bill-category");
-    catSel.innerHTML = "";
-    data.categories.forEach(c=> catSel.innerHTML += `<option value="${c}">${c}</option>`);
-    document.getElementById("edit-bill-category").value = b.category;
-    document.getElementById("edit-bill-amount").value = b.amount;
-    document.getElementById("edit-bill-note").value = b.note;
-}
-//【新增保存修改账单】
-function updateBill(){
-    const idx = Number(document.getElementById("edit-bill-index").value);
-    data.bills[idx].date = document.getElementById("edit-bill-date").value;
-    data.bills[idx].type = document.getElementById("edit-bill-type").value;
-    data.bills[idx].category = document.getElementById("edit-bill-category").value;
-    data.bills[idx].amount = Number(document.getElementById("edit-bill-amount").value);
-    data.bills[idx].note = document.getElementById("edit-bill-note").value;
-    saveData("bills");
-    closeModal("modal-bill-edit");
-    renderPage("book");
-}
-//【新增弹窗内删除账单】
-function deleteEditBill(){
-    const idx = Number(document.getElementById("edit-bill-index").value);
-    if(!confirm("确定删除这条账单记录？")) return;
-    data.bills.splice(idx,1);
-    saveData("bills");
-    closeModal("modal-bill-edit");
-    renderPage("book");
+function queryMonthCategoryCost() {
+  const month = document.getElementById("stat-month-cat").value;
+  const cat = document.getElementById("stat-select-cat").value;
+  const resBox = document.getElementById("month-cat-result");
+
+  if (!month || !cat) {
+    resBox.innerHTML = `<div class="text-red-500">请选择月份和分类</div>`;
+    return;
+  }
+
+  const list = data.bills.filter(b => b.type === "expense" && b.category === cat && b.date.startsWith(month));
+  let total = 0;
+  let dayMap = {};
+
+  list.forEach(b => {
+    total += b.amount;
+    if (!dayMap[b.date]) dayMap[b.date] = 0;
+    dayMap[b.date] += b.amount;
+  });
+
+  let html = `<div class="font-semibold">${month}｜${cat}｜总支出：<span class="${getAmountColor(total)}">${total}</span></div>`;
+  Object.keys(dayMap).sort().forEach(d => {
+    html += `<div class="flex justify-between"><span>${d}</span><span class="${getAmountColor(dayMap[d])}">${dayMap[d]}</span></div>`;
+  });
+
+  if (list.length === 0) {
+    html += `<div class="text-gray-400 mt-1">该月该分类暂无消费记录</div>`;
+  }
+
+  resBox.innerHTML = html;
 }
 
-function renderBillList(){
-    const wrap = document.getElementById('bill-list');
-    wrap.innerHTML = "";
-    let list = [...data.bills];
-    if(billFilter.singleDate){
-        list = list.filter(b=> b.date === billFilter.singleDate);
-    }
-    list.sort((a,b)=> new Date(b.date) - new Date(a.date));
-    list.forEach((b, idx)=>{
-        let amountText;
-        let dotHtml = '';
-        if(b.type==='income'){
-            amountText = `<span class="text-green-600">+${b.amount}</span>`;
-        }else{
-            amountText = `<span class="${getAmountColor(b.amount)}">-${b.amount}</span>`;
-            dotHtml = `<span class="dot-marker ${getExpenseDotClass(b.amount)}"></span>`
-        }
-        //点击条目打开编辑弹窗
-        wrap.innerHTML += `
-        <div class="bg-white/70 p-3 rounded flex justify-between items-center cursor-pointer" onclick="openEditBillModal(${data.bills.indexOf(b)})">
-            <div>${dotHtml}${b.date}｜${b.category}｜${b.note||'无备注'}</div>
-            <div>${amountText}</div>
-        </div>`
-    })
+function openFixedBillModal() {
+  openModal("modal-fixedbill");
+  document.getElementById("fixed-name").value = "";
+  document.getElementById("fixed-amount").value = "";
+  document.getElementById("fixed-note").value = "";
+  const catSel = document.getElementById("fixed-cat");
+  catSel.innerHTML = "";
+  data.categories.forEach(c => {
+    catSel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
 }
 
-function filterBillBySingleDate(){
-    const d = document.getElementById("filter-single-date").value;
-    if(!d){
-        document.getElementById("filter-tip").innerText = "请选择日期！";
-        return;
-    }
-    billFilter.singleDate = d;
-    document.getElementById("filter-tip").innerText = `正在查看：${d} 的花销`;
-    renderBillList();
-}
-function clearBillFilter(){
-    billFilter.singleDate = "";
-    document.getElementById("filter-single-date").value = "";
-    document.getElementById("filter-tip").innerText = "";
-    renderBillList();
-}
-function renderBillStat(){
-    let income = 0, expense=0;
-    data.bills.forEach(b=>{
-        if(b.type==='income') income += b.amount;
-        else expense += b.amount;
-    })
-    document.getElementById('bill-stat').innerHTML = `总收入：${income}｜总支出：<span class="${getAmountColor(expense)}">${expense}</span>｜结余：${income-expense}`;
+function saveFixedBill() {
+  const type = document.getElementById("fixed-type").value;
+  const name = document.getElementById("fixed-name").value.trim();
+  const cat = document.getElementById("fixed-cat").value;
+  const amt = Number(document.getElementById("fixed-amount").value);
+  const note = document.getElementById("fixed-note").value.trim();
+
+  if (!name || !amt) return alert("填写名称和金额");
+
+  fixedBills.push({
+    type,
+    name,
+    category: cat,
+    amount: amt,
+    note: note
+  });
+
+  localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
+  closeModal("modal-fixedbill");
+  renderPage("book");
 }
 
-//每月定额消费
-function openFixedBillModal(){
-    openModal('modal-fixedbill');
-    document.getElementById('fixed-name').value = "";
-    document.getElementById('fixed-amount').value = "";
-    const catSel = document.getElementById('fixed-cat');
-    catSel.innerHTML = "";
-    data.categories.forEach(c=> catSel.innerHTML += `<option value="${c}">${c}</option>`);
-}
-function saveFixedBill(){
-    const name = document.getElementById('fixed-name').value.trim();
-    const cat = document.getElementById('fixed-cat').value;
-    const amt = Number(document.getElementById('fixed-amount').value);
-    if(!name || !amt) return alert("填写名称和金额");
-    fixedBills.push({name, category:cat, amount:amt});
-    localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
-    closeModal('modal-fixedbill');
-    renderPage('book');
-}
-function renderFixedBillList(){
-    const wrap = document.getElementById("fixed-bill-list");
-    wrap.innerHTML = "";
-    fixedBills.forEach((item,idx)=>{
-        wrap.innerHTML += `
-            <div class="bg-white/80 p-2 rounded flex justify-between items-center">
-                <div>${item.name}【${item.category}】每月：<span class="${getAmountColor(item.amount)}">${item.amount}</span></div>
-                <button onclick="delFixedBill(${idx})" class="text-red-500"><i class="fa fa-trash"></i></button>
-            </div>
-        `
-    })
-}
-function delFixedBill(idx){
-    fixedBills.splice(idx,1);
-    localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
-    renderPage('book');
+function openEditFixedModal(idx) {
+  openModal("modal-fixed-edit");
+  const fb = fixedBills[idx];
+  document.getElementById("edit-fixed-idx").value = idx;
+  document.getElementById("edit-fixed-type").value = fb.type;
+  document.getElementById("edit-fixed-name").value = fb.name;
+  document.getElementById("edit-fixed-amount").value = fb.amount;
+  document.getElementById("edit-fixed-note").value = fb.note || "";
+  const sel = document.getElementById("edit-fixed-cat");
+  sel.innerHTML = "";
+  data.categories.forEach(c => {
+    sel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+  sel.value = fb.category;
 }
 
-//记事本项目
-function openAddNoteModal(){ openModal('modal-note'); document.getElementById('note-title').value=""; document.getElementById('note-content').value=""; }
-function saveNote(){
-    const note = { title: document.getElementById('note-title').value, content: document.getElementById('note-content').value }
-    data.notes.push(note);
-    saveData('notes');
-    closeModal('modal-note');
-    renderPage('record');
-}
-function renderNoteList(){
-    const wrap = document.getElementById('note-list');
-    wrap.innerHTML = "";
-    data.notes.forEach((n, idx)=>{
-        wrap.innerHTML += `
-        <div class="bg-white/70 p-3 rounded flex justify-between">
-            <div><div class="font-semibold">${n.title||'无标题'}</div><div class="text-sm text-gray-500">${n.content.substring(0,30)}...</div></div>
-            <button onclick="delNote(${idx})" class="text-red-500"><i class="fa fa-trash"></i></button>
-        </div>`
-    })
-}
-function delNote(idx){ data.notes.splice(idx,1); saveData('notes'); renderPage('record'); }
-
-function openAddProjectModal(){
-    openModal('modal-project');
-    document.getElementById('project-name').value="";
-    stepTempList = [];
-    document.getElementById('step-list').innerHTML="";
-}
-function addStep(){
-    stepTempList.push({text:"", done:false});
-    renderStepTemp();
-}
-function renderStepTemp(){
-    const wrap = document.getElementById('step-list');
-    wrap.innerHTML = "";
-    stepTempList.forEach((s,idx)=>{
-        wrap.innerHTML += `
-        <div class="flex items-center gap-2">
-            <input type="checkbox" ${s.done?'checked':''} onchange="stepTempList[${idx}].done=this.checked">
-            <input class="flex-1 border p-1 rounded" value="${s.text}" oninput="stepTempList[${idx}].text=this.value">
-            <button onclick="stepTempList.splice(${idx},1);renderStepTemp()" class="text-red-500"><i class="fa fa-times"></i></button>
-        </div>`
-    })
-}
-function saveProject(){
-    const proj = { name: document.getElementById('project-name').value, steps: stepTempList }
-    data.projects.push(proj);
-    saveData('projects');
-    closeModal('modal-project');
-    renderPage('record');
-}
-function renderProjectList(){
-    const wrap = document.getElementById('project-list');
-    wrap.innerHTML = "";
-    data.projects.forEach((p, idx)=>{
-        let stepHtml = p.steps.map((s,i)=>`<div class="flex items-center gap-1"><input type="checkbox" ${s.done?'checked':''} onchange="data.projects[${idx}].steps[${i}].done=this.checked;saveData('projects');renderPage('record')"><span>${s.text}</span></div>`).join('');
-        wrap.innerHTML += `
-        <div class="bg-white/70 p-3 rounded">
-            <div class="font-semibold flex justify-between">${p.name}<button onclick="delProject(${idx})" class="text-red-500"><i class="fa fa-trash"></i></button></div>
-            <div class="mt-1">${stepHtml}</div>
-        </div>`
-    })
-}
-function delProject(idx){ data.projects.splice(idx,1); saveData('projects'); renderPage('record'); }
-
-//待办
-function openAddTodoModal(){ openModal('modal-todo'); document.getElementById('todo-text').value=""; document.getElementById('todo-time').value=""; }
-function saveTodo(){
-    const todo = { text: document.getElementById('todo-text').value, time: document.getElementById('todo-time').value, done: false }
-    data.todos.push(todo);
-    saveData('todos');
-    closeModal('modal-todo');
-    renderPage('todo');
-    requestNotify();
-}
-function renderTodoList(){
-    const wrap = document.getElementById('todo-list');
-    wrap.innerHTML = "";
-    data.todos.forEach((t, idx)=>{
-        wrap.innerHTML += `
-        <div class="bg-white/70 p-3 rounded flex items-center gap-2">
-            <input type="checkbox" ${t.done?'checked':''} onchange="data.todos[${idx}].done=this.checked;saveData('todos');renderPage('todo')">
-            <div class="flex-1"><div>${t.text}</div><div class="text-sm text-gray-500">${t.time}</div></div>
-            <button onclick="delTodo(${idx})" class="text-red-500"><i class="fa fa-trash"></i></button>
-        </div>`
-    })
-}
-function delTodo(idx){ data.todos.splice(idx,1); saveData('todos'); renderPage('todo'); }
-function requestNotify(){
-    if(Notification.permission !== "granted") Notification.requestPermission();
+function updateFixedBill() {
+  const idx = Number(document.getElementById("edit-fixed-idx").value);
+  const fb = fixedBills[idx];
+  fb.type = document.getElementById("edit-fixed-type").value;
+  fb.name = document.getElementById("edit-fixed-name").value.trim();
+  fb.category = document.getElementById("edit-fixed-cat").value;
+  fb.amount = Number(document.getElementById("edit-fixed-amount").value);
+  fb.note = document.getElementById("edit-fixed-note").value.trim();
+  localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
+  closeModal("modal-fixed-edit");
+  renderPage("book");
 }
 
-//打卡模块
-function openAddCheckinModal(){ openModal('modal-checkin'); document.getElementById('checkin-name').value=""; }
-function saveCheckin(){
-    const ck = { name: document.getElementById('checkin-name').value, records:[] }
-    data.checkins.push(ck);
-    saveData('checkins');
-    closeModal('modal-checkin');
-    renderPage('checkin');
+function deleteFixedBillByIdx() {
+  const idx = Number(document.getElementById("edit-fixed-idx").value);
+  if (!confirm("确定删除定额？")) return;
+  fixedBills.splice(idx, 1);
+  localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
+  closeModal("modal-fixed-edit");
+  renderPage("book");
 }
 
-//【修改查询打卡：支持删除该天的打卡记录】
-function queryCheckinDate(){
-    const targetDate = document.getElementById('query-checkin-date').value;
-    const resultBox = document.getElementById('query-checkin-result');
-    if(!targetDate){
-        resultBox.innerHTML = "请选择日期";
-        return;
-    }
-    let html = "";
-    let hasRecord = false;
-    data.checkins.forEach((ck,ckIdx)=>{
-        //找出该项目下所有匹配日期的记录索引
-        const matchIndexList = [];
-        ck.records.forEach((r,recIdx)=>{
-            if(r.startsWith(targetDate)) matchIndexList.push(recIdx);
-        })
-        if(matchIndexList.length>0){
-            hasRecord=true;
-            html += `<div class="flex justify-between items-center border-b py-1">
-                <span>✅ ${ck.name}</span>
-                <button class="text-red-500 text-xs" onclick="deleteOneDayCheckin(${ckIdx},${matchIndexList[0]})">删除这条打卡</button>
-            </div>`;
-        }
-    })
-    if(!hasRecord){
-        html = `<div class="text-gray-500">${targetDate}：没有任何打卡记录</div>`;
-    }
-    resultBox.innerHTML = html;
-}
-//【新增删除某项目某一天单条打卡记录】
-function deleteOneDayCheckin(checkinIndex,recordIndex){
-    if(!confirm("确定删除该条打卡记录吗？")) return;
-    data.checkins[checkinIndex].records.splice(recordIndex,1);
-    saveData("checkins");
-    queryCheckinDate();
-    renderPage("checkin");
-}
+function renderFixedBillList() {
+  const wrap = document.getElementById("fixed-bill-list");
+  if (!wrap) return;
+  wrap.innerHTML = "";
 
-function renderCheckinList(){
-    const wrap = document.getElementById('checkin-list');
-    wrap.innerHTML = "";
-    data.checkinGroups.forEach(group=>{
-        //当前分组下所有打卡项目
-        const groupItems = data.checkins.filter(item=>item.groupId === group.id || (!item.groupId && group.id==="default"));
-        let itemHtml = "";
-        groupItems.forEach((ck)=>{
-            const idx = data.checkins.indexOf(ck);
-            const last = ck.records.length ? new Date(ck.records[ck.records.length-1]) : null;
-            let streak = 0;
-            if(last){
-                const now = new Date();
-                for(let i=0;i<ck.records.length;i++){
-                    const d = new Date(ck.records[ck.records.length-1-i]);
-                    if(Math.abs(d - now)/(1000*3600*24) <= i+1) streak++;
-                    else break;
-                }
-            }
-            const dateList = ck.records.map(r=> r.split('T')[0]).join("、");
-            itemHtml += `
-            <div class="bg-white/70 p-3 rounded mt-1 ml-3">
-                <div class="flex justify-between items-center">
-                    <div class="font-semibold">${ck.name}</div>
-                    <div>连续打卡：${streak}天</div>
-                </div>
-                <div class="text-sm mt-1 text-gray-600">打卡日期：${dateList || "暂无打卡记录"}</div>
-                <div class="flex gap-2 mt-2">
-                    <button onclick="doCheckin(${idx})" class="px-3 py-1 bg-primary text-white rounded text-sm">今日打卡</button>
-                    <button onclick="delCheckin(${idx})" class="px-3 py-1 bg-red-400 text-white rounded text-sm">删除项目</button>
-                </div>
-            </div>`;
-        })
-        // 默认分组禁止删除
-        let delBtnHtml = "";
-        let renameBtnHtml = `<button onclick="openRenameGroupModal('${group.id}')" class="text-blue-600 text-sm mx-2"><i class="fa fa-pencil"></i>重命名</button>`;
-        if(group.id !== "default"){
-            delBtnHtml = `<button onclick="deleteCheckinGroup('${group.id}')" class="text-red-500 text-sm"><i class="fa fa-trash"></i> 删除分组</button>`;
-        }
-
-        wrap.innerHTML += `
-        <div class="bg-blue-50 p-3 rounded my-2">
-            <div class="font-bold flex justify-between items-center cursor-pointer" onclick="toggleCheckinGroup('${group.id}')">
-                <span>📂 ${group.name}</span>
-                <div>
-                    ${renameBtnHtml}
-                    ${delBtnHtml}
-                </div>
-            </div>
-            <div id="group_body_${group.id}">
-                ${itemHtml || `<div class="text-gray-400 text-sm ml-3 mt-1">该分组暂无打卡项目</div>`}
-            </div>
+  fixedBills.forEach((item, idx) => {
+    const tText = item.type === "month" ? "每月定额" : "每日定额";
+    wrap.innerHTML += `
+      <div class="bg-white/80 p-3 rounded-lg shadow-sm">
+        <div class="flex justify-between items-center">
+          <div>${tText}｜${item.name}【${item.category}】：<span class="${getAmountColor(item.amount)}">${item.amount}</span></div>
+          <div>
+            <button onclick="openEditFixedModal(${idx})" class="text-blue-500 text-sm mx-1">编辑</button>
+            <button onclick="delFixedBill(${idx})" class="text-red-500 text-sm">删除</button>
+          </div>
         </div>
-        `
-    })
+        ${item.note ? `<div class="text-sm text-gray-500 mt-1">备注：${item.note}</div>` : ""}
+      </div>`;
+  });
 }
 
-//删除打卡分组，内部打卡迁移回默认分组
-function deleteCheckinGroup(groupId){
-    if(!confirm("确定删除该分组？分组内所有打卡项目会移动到【默认分组】")) return;
-    // 将该分组下所有打卡迁移回 default
-    data.checkins.forEach(ck=>{
-        if(ck.groupId === groupId){
-            ck.groupId = "default";
+function delFixedBill(idx) {
+  fixedBills.splice(idx, 1);
+  localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
+  renderPage("book");
+}
+
+function renderCategorySelectOptions() {
+  const sel = document.getElementById("select-category-stat");
+  if (!sel) return;
+  sel.innerHTML = `<option value="">请选择分类</option>`;
+  data.categories.forEach(c => {
+    sel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+}
+
+function renderAllChart() {
+  if (pieChart) { pieChart.destroy(); pieChart = null; }
+  if (lineChart) { lineChart.destroy(); lineChart = null; }
+
+  const pieMonth = document.getElementById("chart-month-pie").value;
+  if (pieMonth) {
+    const monthBills = data.bills.filter(b => b.type === "expense" && b.date.startsWith(pieMonth));
+    const catSum = {};
+    monthBills.forEach(b => {
+      if (!catSum[b.category]) catSum[b.category] = 0;
+      catSum[b.category] += b.amount;
+    });
+
+    const pieCtx = document.getElementById("chart-pie").getContext("2d");
+    pieChart = new Chart(pieCtx, {
+      type: "pie",
+      data: {
+        labels: Object.keys(catSum),
+        datasets: [{ data: Object.values(catSum) }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  }
+
+  const lineCatSel = document.getElementById("chart-line-cat");
+  lineCatSel.innerHTML = "";
+  data.categories.forEach(c => {
+    lineCatSel.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+
+  const selCat = lineCatSel.value;
+  const baseMonthStr = document.getElementById("chart-line-base-month").value;
+
+  if (!baseMonthStr || !selCat) return;
+
+  const [y, m] = baseMonthStr.split("-").map(Number);
+  const base = new Date(y, m - 1, 1);
+  const monthList = [];
+
+  for (let off = -3; off <= 3; off++) {
+    const d = new Date(base);
+    d.setMonth(base.getMonth() + off);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthList.push(ym);
+  }
+
+  const values = monthList.map(ym => {
+    return data.bills
+      .filter(b => b.type === "expense" && b.category === selCat && b.date.startsWith(ym))
+      .reduce((s, it) => s + it.amount, 0);
+  });
+
+  const lineCtx = document.getElementById("chart-line").getContext("2d");
+  lineChart = new Chart(lineCtx, {
+    type: "line",
+    data: {
+      labels: monthList,
+      datasets: [{ label: selCat + "消费", data: values, fill: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+}
+
+function renderRecordPage(box) {
+  box.innerHTML = `
+    <div class="p-4">
+      <div class="flex justify-between items-center mb-4">
+        <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
+        <h2 class="text-xl font-bold">记录</h2>
+        <div></div>
+      </div>
+      <div class="flex gap-2 mb-4">
+        <button onclick="switchRecordTab('note')" id="tab-note" class="px-3 py-1 rounded bg-primary text-white">记事本</button>
+        <button onclick="switchRecordTab('project')" id="tab-project" class="px-3 py-1 rounded bg-gray-200">项目记录</button>
+      </div>
+      <div id="note-panel">
+        <button onclick="openAddNoteModal()" class="mb-4 text-primary"><i class="fa fa-plus"></i> 新建笔记</button>
+        <div id="note-list" class="space-y-2"></div>
+      </div>
+      <div id="project-panel" class="hidden">
+        <button onclick="openAddProjectModal()" class="mb-4 text-primary"><i class="fa fa-plus"></i> 新建项目</button>
+        <div id="project-list" class="space-y-2"></div>
+      </div>
+    </div>`;
+  renderNoteList();
+  renderProjectList();
+}
+
+function switchRecordTab(tab) {
+  document.getElementById("note-panel").classList.toggle("hidden", tab !== "note");
+  document.getElementById("project-panel").classList.toggle("hidden", tab !== "project");
+  document.getElementById("tab-note").className = tab === "note"
+    ? "px-3 py-1 rounded bg-primary text-white"
+    : "px-3 py-1 rounded bg-gray-200";
+  document.getElementById("tab-project").className = tab === "project"
+    ? "px-3 py-1 rounded bg-primary text-white"
+    : "px-3 py-1 rounded bg-gray-200";
+}
+
+function openAddNoteModal() {
+  openModal("modal-note");
+  document.getElementById("note-title").value = "";
+  document.getElementById("note-content").value = "";
+}
+
+function saveNote() {
+  const note = {
+    title: document.getElementById("note-title").value,
+    content: document.getElementById("note-content").value
+  };
+  data.notes.push(note);
+  saveData("notes");
+  closeModal("modal-note");
+  renderPage("record");
+}
+
+function renderNoteList() {
+  const wrap = document.getElementById("note-list");
+  wrap.innerHTML = "";
+  data.notes.forEach((n, idx) => {
+    wrap.innerHTML += `
+      <div class="bg-white/70 p-3 rounded flex justify-between">
+        <div>
+          <div class="font-semibold">${n.title || "无标题"}</div>
+          <div class="text-sm text-gray-500">${(n.content || "").substring(0, 30)}...</div>
+        </div>
+        <button onclick="delNote(${idx})" class="text-red-500"><i class="fa fa-trash"></i></button>
+      </div>`;
+  });
+}
+
+function delNote(idx) {
+  data.notes.splice(idx, 1);
+  saveData("notes");
+  renderPage("record");
+}
+
+function openAddProjectModal() {
+  openModal("modal-project");
+  document.getElementById("project-name").value = "";
+  stepTempList = [];
+  document.getElementById("step-list").innerHTML = "";
+}
+
+function addStep() {
+  stepTempList.push({ text: "", done: false });
+  renderStepTemp();
+}
+
+function renderStepTemp() {
+  const wrap = document.getElementById("step-list");
+  wrap.innerHTML = "";
+  stepTempList.forEach((s, idx) => {
+    wrap.innerHTML += `
+      <div class="flex items-center gap-2">
+        <input type="checkbox" ${s.done ? "checked" : ""} onchange="stepTempList[${idx}].done=this.checked" />
+        <input class="flex-1 border p-1 rounded" value="${s.text}" oninput="stepTempList[${idx}].text=this.value" />
+        <button onclick="stepTempList.splice(${idx},1);renderStepTemp()" class="text-red-500"><i class="fa fa-times"></i></button>
+      </div>`;
+  });
+}
+
+function saveProject() {
+  const proj = {
+    name: document.getElementById("project-name").value,
+    steps: stepTempList
+  };
+  data.projects.push(proj);
+  saveData("projects");
+  closeModal("modal-project");
+  renderPage("record");
+}
+
+function renderProjectList() {
+  const wrap = document.getElementById("project-list");
+  wrap.innerHTML = "";
+  data.projects.forEach((p, idx) => {
+    let stepHtml = p.steps.map((s, i) => `
+      <div class="flex items-center gap-1">
+        <input type="checkbox" ${s.done ? "checked" : ""} onchange="data.projects[${idx}].steps[${i}].done=this.checked;saveData('projects');renderPage('record')" />
+        <span>${s.text}</span>
+      </div>`).join("");
+
+    wrap.innerHTML += `
+      <div class="bg-white/70 p-3 rounded">
+        <div class="font-semibold flex justify-between">
+          ${p.name}
+          <button onclick="delProject(${idx})" class="text-red-500"><i class="fa fa-trash"></i></button>
+        </div>
+        <div class="mt-1">${stepHtml}</div>
+      </div>`;
+  });
+}
+
+function delProject(idx) {
+  data.projects.splice(idx, 1);
+  saveData("projects");
+  renderPage("record");
+}
+
+function renderTodoPage(box) {
+  box.innerHTML = `
+    <div class="p-4">
+      <div class="flex justify-between items-center mb-4">
+        <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
+        <h2 class="text-xl font-bold">待办事项</h2>
+        <button onclick="openAddTodoModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
+      </div>
+      <div id="todo-list" class="space-y-2"></div>
+    </div>`;
+  renderTodoList();
+}
+
+function openAddTodoModal() {
+  openModal("modal-todo");
+  document.getElementById("todo-text").value = "";
+  document.getElementById("todo-time").value = "";
+}
+
+function saveTodo() {
+  const todo = {
+    text: document.getElementById("todo-text").value,
+    time: document.getElementById("todo-time").value,
+    done: false
+  };
+  data.todos.push(todo);
+  saveData("todos");
+  closeModal("modal-todo");
+  renderPage("todo");
+  requestNotify();
+}
+
+function renderTodoList() {
+  const wrap = document.getElementById("todo-list");
+  wrap.innerHTML = "";
+  data.todos.forEach((t, idx) => {
+    wrap.innerHTML += `
+      <div class="bg-white/70 p-3 rounded flex items-center gap-2">
+        <input type="checkbox" ${t.done ? "checked" : ""} onchange="data.todos[${idx}].done=this.checked;saveData('todos');renderPage('todo')" />
+        <div class="flex-1">
+          <div>${t.text}</div>
+          <div class="text-sm text-gray-500">${t.time}</div>
+        </div>
+        <button onclick="delTodo(${idx})" class="text-red-500"><i class="fa fa-trash"></i></button>
+      </div>`;
+  });
+}
+
+function delTodo(idx) {
+  data.todos.splice(idx, 1);
+  saveData("todos");
+  renderPage("todo");
+}
+
+function requestNotify() {
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+}
+
+function renderCheckinPage(box) {
+  box.innerHTML = `
+    <div class="p-4">
+      <div class="flex justify-between items-center mb-4">
+        <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
+        <h2 class="text-xl font-bold">每日打卡</h2>
+        <div class="flex gap-2">
+          <button onclick="openModal('modal-checkin-cat-add')" class="px-2 py-1 bg-gray-300 rounded text-sm">新建分类</button>
+          <button onclick="openAddCheckinItemModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
+        </div>
+      </div>
+      <div id="checkin-container"></div>
+    </div>`;
+  renderCheckinAll();
+}
+
+function fillCheckinCatSelect(selId, selectedId = "") {
+  const sel = document.getElementById(selId);
+  sel.innerHTML = "";
+  data.checkinItemCats.forEach(cat => {
+    sel.innerHTML += `<option value="${cat.catId}">${cat.catName}</option>`;
+  });
+  if (selectedId) sel.value = selectedId;
+}
+
+function openAddCheckinItemModal() {
+  openModal("modal-checkin-add");
+  fillCheckinCatSelect("chk_item_cat_sel");
+  document.getElementById("chk_item_name").value = "";
+  document.getElementById("chk_item_note").value = "";
+}
+
+function saveCheckinCat() {
+  const name = document.getElementById("chk_cat_name").value.trim();
+  if (!name) return alert("请输入分类名称");
+  data.checkinItemCats.push({
+    catId: "c_" + Date.now(),
+    catName: name
+  });
+  saveData("checkinItemCats");
+  closeModal("modal-checkin-cat-add");
+  document.getElementById("chk_cat_name").value = "";
+  renderCheckinAll();
+}
+
+function openEditCheckinCatModal(catId) {
+  const cat = data.checkinItemCats.find(x => x.catId === catId);
+  if (!cat) return;
+  document.getElementById("edit_chk_cat_id").value = catId;
+  document.getElementById("edit_chk_cat_name").value = cat.catName;
+  openModal("modal-checkin-cat-edit");
+}
+
+function updateCheckinCat() {
+  const cid = document.getElementById("edit_chk_cat_id").value;
+  const newName = document.getElementById("edit_chk_cat_name").value.trim();
+  if (!newName) return alert("名称不能为空");
+  const cat = data.checkinItemCats.find(x => x.catId === cid);
+  cat.catName = newName;
+  saveData("checkinItemCats");
+  closeModal("modal-checkin-cat-edit");
+  renderCheckinAll();
+}
+
+function deleteCheckinCat(catId) {
+  if (catId === "def") return alert("默认分类不能删除！");
+  if (!confirm("确定删除该分类？该分类下所有打卡项目移动到【默认分类】")) return;
+  data.checkinItems.forEach(item => {
+    if (item.catId === catId) item.catId = "def";
+  });
+  const idx = data.checkinItemCats.findIndex(x => x.catId === catId);
+  if (idx > -1) data.checkinItemCats.splice(idx, 1);
+  saveData("checkinItemCats");
+  saveData("checkinItems");
+  renderCheckinAll();
+}
+
+function saveCheckinItem() {
+  const catId = document.getElementById("chk_item_cat_sel").value;
+  const name = document.getElementById("chk_item_name").value.trim();
+  const note = document.getElementById("chk_item_note").value.trim();
+  if (!name) return alert("打卡项目名称不能为空");
+  data.checkinItems.push({
+    itemId: "i_" + Date.now(),
+    catId: catId,
+    name: name,
+    note: note,
+    records: []
+  });
+  saveData("checkinItems");
+  closeModal("modal-checkin-add");
+  renderCheckinAll();
+}
+
+function openEditCheckinItemModal(itemId){
+    const item = data.checkinItems.find(x=>x.itemId === itemId);
+    if(!item) return;
+    document.getElementById("edit_chk_item_idx").value = itemId;
+    fillCheckinCatSelect("edit_chk_item_cat", item.catId);
+    document.getElementById("edit_chk_item_name").value = item.name;
+    document.getElementById("edit_chk_item_note").value = item.note||"";
+    // 把日期数组转成逗号分隔字符串回填到输入框
+    document.getElementById("edit_chk_records").value = item.records.join(",");
+    openModal("modal-checkin-item-edit");
+}
+
+function updateCheckinItem(){
+    const itemId = document.getElementById("edit_chk_item_idx").value;
+    const item = data.checkinItems.find(x=>x.itemId === itemId);
+    if(!item) return;
+    const newCatId = document.getElementById("edit_chk_item_cat").value;
+    const newName = document.getElementById("edit_chk_item_name").value.trim();
+    const newNote = document.getElementById("edit_chk_item_note").value.trim();
+    const recordStr = document.getElementById("edit_chk_records").value.trim();
+
+    if(!newName) return alert("打卡名称不能为空");
+
+    // 解析逗号分割的日期，过滤空字符串
+    const newRecords = recordStr.split(",")
+        .map(s=>s.trim())
+        .filter(s=>s.length>0);
+
+    item.catId = newCatId;
+    item.name = newName;
+    item.note = newNote;
+    item.records = newRecords;
+
+    saveData("checkinItems");
+    closeModal("modal-checkin-item-edit");
+    renderCheckinAll();
+}
+
+
+
+function deleteCheckinItem(itemId) {
+  if (!confirm("确定删除该打卡项目？打卡记录全部丢失")) return;
+  const idx = data.checkinItems.findIndex(x => x.itemId === itemId);
+  if (idx > -1) data.checkinItems.splice(idx, 1);
+  saveData("checkinItems");
+  renderCheckinAll();
+}
+
+function doCheckToday(itemId) {
+  const today = new Date().toISOString().split("T")[0];
+  const item = data.checkinItems.find(x => x.itemId === itemId);
+  if (!item) return;
+  if (item.records.includes(today)) return alert("今日已经打卡！");
+  item.records.push(today);
+  saveData("checkinItems");
+  renderCheckinAll();
+}
+
+function calcStreak(recordArr) {
+  if (!recordArr || recordArr.length === 0) return 0;
+  const sorted = [...recordArr].sort().reverse();
+  let streak = 0;
+  let now = new Date();
+  now.setHours(0, 0, 0, 0);
+  for (let i = 0; i < sorted.length; i++) {
+    const d = new Date(sorted[i]);
+    d.setHours(0, 0, 0, 0);
+    const deltaDay = Math.round((now.getTime() - d.getTime()) / (1000 * 3600 * 24));
+    if (deltaDay === i || deltaDay === i - 1) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function renderCheckinAll(){
+    const wrap = document.getElementById("checkin-container");
+    let html = "";
+    data.checkinItemCats.forEach(cat=>{
+        const itemsInCat = data.checkinItems.filter(it=>it.catId === cat.catId);
+        html += `<div class="checkin-group-box">
+            <div class="flex justify-between items-center font-bold mb-2">
+                <span>${cat.catName}</span>
+                <div>
+                    <button onclick="openEditCheckinCatModal('${cat.catId}')" class="text-blue-600 text-sm mx-1">编辑</button>
+                    ${cat.catId !== "def" ? `<button onclick="deleteCheckinCat('${cat.catId}')" class="text-red-500 text-sm">删除</button>` : ""}
+                </div>
+            </div>`;
+        if(itemsInCat.length ===0){
+            html += `<div class="text-sm text-gray-500 ml-3">该分类暂无打卡项目</div>`;
+        }else{
+            itemsInCat.forEach(item=>{
+                const streak = calcStreak(item.records);
+                const recordText = item.records.length>0 ? item.records.join("、"):"暂无打卡记录";
+                html += `
+                <div class="checkin-item-card">
+                    <div class="flex justify-between">
+                        <div class="font-semibold">${item.name}</div>
+                        <span>连续：${streak}天</span>
+                    </div>
+                    <div class="text-sm text-gray-600">备注：${item.note||"无"}</div>
+                    <div class="text-sm text-gray-500 mt-1">打卡日期：${recordText}</div>
+                    <div class="flex gap-2 mt-2 flex-wrap">
+                        <button onclick="doCheckToday('${item.itemId}')" class="px-2 py-1 bg-primary text-white rounded text-sm">今日打卡</button>
+                        <button onclick="openEditCheckinItemModal('${item.itemId}')" class="px-2 py-1 bg-blue-500 text-white rounded text-sm">编辑</button>
+                        <button onclick="deleteCheckinItem('${item.itemId}')" class="px-2 py-1 bg-red-400 text-white rounded text-sm">删除</button>
+                    </div>
+                </div>`;
+            })
         }
-    })
-    // 删除分组本身
-    const idx = data.checkinGroups.findIndex(g=>g.id === groupId);
-    if(idx > -1){
-        data.checkinGroups.splice(idx,1);
-    }
-    saveData("checkinGroups");
-    renderPage("checkin");
-}
-
-//打开重命名弹窗
-function openRenameGroupModal(gid){
-    const g = data.checkinGroups.find(x=>x.id === gid);
-    if(!g) return;
-    document.getElementById("rename_group_id").value = gid;
-    document.getElementById("rename_group_name").value = g.name;
-    openModal("modal-rename-group");
-}
-
-//保存重命名
-function saveRenameGroup(){
-    const gid = document.getElementById("rename_group_id").value;
-    const newName = document.getElementById("rename_group_name").value.trim();
-    if(!newName) return alert("请输入分组名称");
-    const g = data.checkinGroups.find(x=>x.id === gid);
-    if(!g) return;
-    g.name = newName;
-    saveData("checkinGroups");
-    closeModal("modal-rename-group");
-    renderPage("checkin");
-}
-
-//切换分组折叠/展开
-function toggleCheckinGroup(groupId){
-    const dom = document.getElementById("group_body_"+groupId);
-    if(!dom) return;
-    dom.classList.toggle("group-collapsed");
+        html += `</div>`;
+    });
+    wrap.innerHTML = html;
 }
 
 
-
-function delCheckin(idx){ data.checkins.splice(idx,1); saveData('checkins'); renderPage('checkin'); }
-
-//保存打卡分组
-
-function saveCheckinGroup(){
-    const gname = document.getElementById("checkin-group-name").value.trim();
-    if(!gname) return alert("请输入分组名称");
-    const newGroup = {
-        id: "g_"+Date.now(),
-        name:gname
-    }
-    data.checkinGroups.push(newGroup);
-    saveData("checkinGroups");
-    closeModal("modal-checkin-group");
-    renderPage("checkin"); // 刷新打卡页面，新增打卡下拉就有新分组
+function renderFocusPage(box) {
+  box.innerHTML = `
+    <div class="p-4 flex flex-col items-center justify-center h-full">
+      <div class="w-full flex justify-start mb-6">
+        <button onclick="renderPage('home')"><i class="fa fa-arrow-left text-xl"></i></button>
+      </div>
+      <div class="relative w-64 h-64 mb-6">
+        <svg class="timer-ring w-full h-full" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" stroke-width="8" />
+          <circle id="timer-progress" cx="50" cy="50" r="45" fill="none" stroke="#3b82f6" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="0" />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div id="timer-text" class="text-4xl font-bold">00:00:00</div>
+        </div>
+      </div>
+      <div class="flex gap-2 mb-4">
+        <input id="focus-h" type="number" min="0" placeholder="时" class="w-14 p-2 rounded border text-center" />
+        <input id="focus-m" type="number" min="0" placeholder="分" class="w-14 p-2 rounded border text-center" />
+        <input id="focus-s" type="number" min="0" placeholder="秒" class="w-full border p-2 rounded" />
+      </div>
+      <div class="flex gap-3">
+        <button onclick="startTimer()" class="px-4 py-2 bg-primary text-white rounded">开始</button>
+        <button onclick="pauseTimer()" class="px-4 py-2 bg-gray-400 text-white rounded">暂停</button>
+        <button onclick="resetTimer()" class="px-4 py-2 bg-red-400 text-white rounded">重置</button>
+      </div>
+    </div>`;
+  updateTimerUI();
 }
 
-
-//填充打卡分组下拉
-function fillCheckinGroupSelect(selId, selectVal=""){
-    const sel = document.getElementById(selId);
-    sel.innerHTML = "";
-    data.checkinGroups.forEach(g=>{
-        sel.innerHTML += `<option value="${g.id}">${g.name}</option>`;
-    })
-    if(selectVal) sel.value = selectVal;
+function startTimer() {
+  if (timerInfo.running) return;
+  const h = Number(document.getElementById("focus-h").value || 0);
+  const m = Number(document.getElementById("focus-m").value || 0);
+  const s = Number(document.getElementById("focus-s").value || 0);
+  timerInfo.total = h * 3600 + m * 60 + s;
+  if (timerInfo.total <= 0) return alert("设置时间");
+  timerInfo.remain = timerInfo.remain || timerInfo.total;
+  timerInfo.running = true;
+  timerInfo.timerId = setInterval(tickTimer, 1000);
 }
 
-//修改打开新增打卡弹窗
-function openAddCheckinModal(){
-    openModal('modal-checkin');
-    document.getElementById('checkin-name').value="";
-    fillCheckinGroupSelect("checkin-select-group");
-}
-
-//修改保存打卡，带上groupId
-function saveCheckin(){
-    const groupId = document.getElementById("checkin-select-group").value;
-    const ck = { 
-        name: document.getElementById('checkin-name').value, 
-        groupId: groupId,
-        records:[] 
-    }
-    data.checkins.push(ck);
-    saveData('checkins');
-    closeModal('modal-checkin');
-    renderPage('checkin');
-}
-
-//导出全部本地存储数据
-function exportAllData(){
-    const exportObj = {
-        data: data,
-        fixedBills: fixedBills,
-        exportTime: new Date().toLocaleString()
-    }
-    const jsonStr = JSON.stringify(exportObj,null,2);
-    const blob = new Blob([jsonStr],{type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `个人工具集备份_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
-}
-
-//导入备份
-function importAllData(){
-    const fileInput = document.getElementById("import-file");
-    const file = fileInput.files[0];
-    if(!file) return alert("请选择备份json文件");
-    const reader = new FileReader();
-    reader.onload = function(e){
-        try{
-            const importData = JSON.parse(e.target.result);
-            //合并导入数据到本地，追加模式，不会清空原有
-            if(importData.data){
-                if(importData.data.bills) data.bills = [...data.bills, ...importData.data.bills];
-                if(importData.data.categories) data.categories = [...new Set([...data.categories,...importData.data.categories])];
-                if(importData.data.notes) data.notes = [...data.notes, ...importData.data.notes];
-                if(importData.data.projects) data.projects = [...data.projects, ...importData.data.projects];
-                if(importData.data.todos) data.todos = [...data.todos, ...importData.data.todos];
-                if(importData.data.checkins) data.checkins = [...data.checkins, ...importData.data.checkins];
-                if(importData.data.checkinGroups) data.checkinGroups = [...data.checkinGroups,...importData.data.checkinGroups];
-            }
-            if(importData.fixedBills) fixedBills = [...fixedBills, ...importData.fixedBills];
-
-            //全部写localStorage
-            saveData("bills");
-            saveData("categories");
-            saveData("notes");
-            saveData("projects");
-            saveData("todos");
-            saveData("checkins");
-            saveData("checkinGroups");
-            localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
-
-            alert("导入完成！页面刷新展示数据");
-            renderPage(currentPage);
-            closeModal("modal-backup");
-        }catch(err){
-            alert("导入失败，文件格式错误！"+err.message);
-        }
-    }
-    reader.readAsText(file);
-}
-
-
-//专注计时器
-function startTimer(){
-    if(timerInfo.running) return;
-    const h = Number(document.getElementById('focus-h').value||0);
-    const m = Number(document.getElementById('focus-m').value||0);
-    const s = Number(document.getElementById('focus-s').value||0);
-    timerInfo.total = h*3600 + m*60 + s;
-    if(timerInfo.total <=0) return alert("设置时间");
-    timerInfo.remain = timerInfo.remain || timerInfo.total;
-    timerInfo.running = true;
-    timerInfo.timerId = setInterval(tickTimer,1000);
-}
-function tickTimer(){
-    timerInfo.remain--;
-    updateTimerUI();
-    if(timerInfo.remain <=0){
-        pauseTimer();
-        alert("专注时间结束！");
-    }
-}
-function pauseTimer(){
-    timerInfo.running = false;
-    clearInterval(timerInfo.timerId);
-}
-function resetTimer(){
+function tickTimer() {
+  timerInfo.remain--;
+  updateTimerUI();
+  if (timerInfo.remain <= 0) {
     pauseTimer();
-    timerInfo.remain = 0;
-    timerInfo.total =0;
-    updateTimerUI();
-}
-function updateTimerUI(){
-    const rem = timerInfo.remain;
-    const h = Math.floor(rem/3600);
-    const m = Math.floor((rem%3600)/60);
-    const s = rem%60;
-    const el = document.getElementById('timer-text');
-    if(el){
-        el.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }
-    const progressEl = document.getElementById('timer-progress');
-    if(progressEl){
-        const percent = timerInfo.total ? rem / timerInfo.total : 0;
-        const dashoffset = 283 * (1-percent);
-        progressEl.style.strokeDashoffset = dashoffset;
-    }
+    alert("专注时间结束！");
+  }
 }
 
-function saveData(key){
-    localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(data[key]));
+function pauseTimer() {
+  timerInfo.running = false;
+  clearInterval(timerInfo.timerId);
 }
 
-if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('data:text/javascript,const CACHE_NAME="tool-v1";self.addEventListener("install",e=>self.skipWaiting());self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));self.addEventListener("fetch",e=>e.respondWith(fetch(e.request).catch(r=>caches.match(e.request))))')
+function resetTimer() {
+  pauseTimer();
+  timerInfo.remain = 0;
+  timerInfo.total = 0;
+  updateTimerUI();
 }
-window.onload = function(){
-    loadBg();
-    renderPage("home");
+
+function updateTimerUI() {
+  const rem = timerInfo.remain;
+  const h = Math.floor(rem / 3600);
+  const m = Math.floor((rem % 3600) / 60);
+  const s = rem % 60;
+  const el = document.getElementById("timer-text");
+  if (el) {
+    el.innerText = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+  const progressEl = document.getElementById("timer-progress");
+  if (progressEl) {
+    const percent = timerInfo.total ? rem / timerInfo.total : 0;
+    progressEl.style.strokeDashoffset = 283 * (1 - percent);
+  }
 }
+
+function exportAllData() {
+  const exportObj = {
+    data: data,
+    fixedBills: fixedBills,
+    exportTime: new Date().toLocaleString()
+  };
+  const jsonStr = JSON.stringify(exportObj, null, 2);
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `个人工具集备份_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+function importAllData() {
+  const fileInput = document.getElementById("import-file");
+  const file = fileInput.files[0];
+  if (!file) return alert("请选择备份json文件");
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const importData = JSON.parse(e.target.result);
+      if (importData.data) {
+        if (importData.data.bills) data.bills = [...data.bills, ...importData.data.bills];
+        if (importData.data.categories) data.categories = [...new Set([...data.categories, ...importData.data.categories])];
+        if (importData.data.notes) data.notes = [...data.notes, ...importData.data.notes];
+        if (importData.data.projects) data.projects = [...data.projects, ...importData.data.projects];
+        if (importData.data.todos) data.todos = [...data.todos, ...importData.data.todos];
+        if (importData.data.checkinItemCats) data.checkinItemCats = [...data.checkinItemCats, ...importData.data.checkinItemCats];
+        if (importData.data.checkinItems) data.checkinItems = [...data.checkinItems, ...importData.data.checkinItems];
+      }
+      if (importData.fixedBills) fixedBills = [...fixedBills, ...importData.fixedBills];
+
+      saveData("bills");
+      saveData("categories");
+      saveData("notes");
+      saveData("projects");
+      saveData("todos");
+      saveData("checkinItemCats");
+      saveData("checkinItems");
+      localStorage.setItem(STORAGE_KEYS.fixedBills, JSON.stringify(fixedBills));
+
+      alert("导入完成！");
+      renderPage(currentPage);
+      closeModal("modal-backup");
+    } catch (err) {
+      alert("导入失败，文件格式错误！" + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function openBgSetting() { openModal("modal-bg"); }
+
+function setBgColor() {
+  const color = document.getElementById("bg-color").value;
+  document.querySelector(".bg-container").style.background = color;
+  localStorage.setItem(STORAGE_KEYS.bg, JSON.stringify({ type: "color", val: color }));
+}
+
+function uploadBgImage() {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.querySelector(".bg-container").style.backgroundImage = `url(${e.target.result})`;
+    document.querySelector(".bg-container").style.backgroundSize = "cover";
+    document.querySelector(".bg-container").style.backgroundPosition = "center";
+    localStorage.setItem(STORAGE_KEYS.bg, JSON.stringify({ type: "img", val: e.target.result }));
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadBg() {
+  const saved = localStorage.getItem(STORAGE_KEYS.bg);
+  if (!saved) return;
+  const bg = JSON.parse(saved);
+  if (bg.type === "color") {
+    document.querySelector(".bg-container").style.background = bg.val;
+  } else {
+    document.querySelector(".bg-container").style.backgroundImage = `url(${bg.val})`;
+    document.querySelector(".bg-container").style.backgroundSize = "cover";
+    document.querySelector(".bg-container").style.backgroundPosition = "center";
+  }
+}
+
+function saveData(key) {
+  localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(data[key]));
+}
+
+window.onload = function () {
+  loadBg();
+  renderPage("home");
+};
 </script>
+
 </body>
 </html>
-
