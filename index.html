@@ -351,14 +351,31 @@ tailwind.config = {
         <select id="edit_chk_item_cat" class="w-full border p-2 rounded mb-2"></select>
         <input type="text" id="edit_chk_item_name" placeholder="打卡名称" class="w-full border p-2 rounded mb-2" />
         <input type="text" id="edit_chk_item_note" placeholder="备注" class="w-full border p-2 rounded mb-2" />
-        <!-- 新增：可编辑打卡日期，多个日期用英文逗号隔开 -->
-        <label class="block text-sm mb-1">打卡日期</label>
-        <input type="text" id="edit_chk_records" class="w-full border p-2 rounded mb-3" />
         <div class="flex gap-2">
             <button onclick="updateCheckinItem()" class="flex-1 py-2 bg-primary text-white rounded">保存修改</button>
             <button onclick="closeModal('modal-checkin-item-edit')" class="flex-1 py-2 bg-gray-200 rounded">取消</button>
         </div>
     </div>
+</div>
+
+<!-- 打卡日历弹窗 -->
+<div id="modal-checkin-calendar" class="fixed inset-0 bg-black/50 hidden z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-4 w-full max-w-sm">
+    <div class="flex justify-between items-center mb-3">
+      <h3 id="checkin-calendar-title" class="font-bold truncate"></h3>
+      <button onclick="closeModal('modal-checkin-calendar')" aria-label="关闭日历" class="ml-3 text-gray-500"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="flex items-center justify-between mb-3">
+      <button onclick="shiftCheckinCalendarMonth(-1)" aria-label="上个月" class="w-9 h-9 rounded hover:bg-gray-100"><i class="fa fa-chevron-left"></i></button>
+      <input type="month" id="checkin-calendar-month" onchange="renderCheckinCalendar()" class="border p-2 rounded" />
+      <button onclick="shiftCheckinCalendarMonth(1)" aria-label="下个月" class="w-9 h-9 rounded hover:bg-gray-100"><i class="fa fa-chevron-right"></i></button>
+    </div>
+    <div id="checkin-calendar-grid" class="grid grid-cols-7 gap-1 text-center"></div>
+    <div class="flex items-center justify-center gap-4 mt-3 text-xs text-gray-600">
+      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-orange-500"></span>已打卡</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm border border-gray-200 bg-white"></span>未打卡</span>
+    </div>
+  </div>
 </div>
 
 <!-- 数据备份弹窗 -->
@@ -1205,6 +1222,9 @@ function requestNotify() {
   }
 }
 
+let checkinDateFilter = "";
+let activeCheckinCalendarItemId = "";
+
 function renderCheckinPage(box) {
   box.innerHTML = `
     <div class="p-4">
@@ -1216,8 +1236,33 @@ function renderCheckinPage(box) {
           <button onclick="openAddCheckinItemModal()"><i class="fa fa-plus-circle text-xl text-primary"></i></button>
         </div>
       </div>
+
+      <div class="mb-4 p-3 bg-white/70 rounded-lg">
+        <div class="font-semibold mb-2">查询打卡日期</div>
+        <div class="flex gap-2 mb-2 flex-wrap">
+          <input type="date" id="checkin-date-filter" class="flex-1 border p-2 rounded" />
+          <button onclick="applyCheckinDateFilter()" class="px-3 py-2 bg-primary text-white rounded">查询</button>
+          <button onclick="clearCheckinDateFilter()" class="px-3 py-2 bg-gray-300 rounded">清除</button>
+        </div>
+        <div id="checkin-filter-tip" class="text-sm text-gray-600"></div>
+      </div>
+
       <div id="checkin-container"></div>
     </div>`;
+  renderCheckinAll();
+}
+
+function applyCheckinDateFilter() {
+  const v = document.getElementById("checkin-date-filter").value;
+  if (!/\d{4}-\d{2}-\d{2}/.test(v)) return alert("请选择有效日期");
+  checkinDateFilter = v;
+  renderCheckinAll();
+}
+
+function clearCheckinDateFilter() {
+  checkinDateFilter = "";
+  const d = document.getElementById("checkin-date-filter");
+  if (d) d.value = "";
   renderCheckinAll();
 }
 
@@ -1306,8 +1351,6 @@ function openEditCheckinItemModal(itemId){
     fillCheckinCatSelect("edit_chk_item_cat", item.catId);
     document.getElementById("edit_chk_item_name").value = item.name;
     document.getElementById("edit_chk_item_note").value = item.note||"";
-    // 把日期数组转成逗号分隔字符串回填到输入框
-    document.getElementById("edit_chk_records").value = item.records.join(",");
     openModal("modal-checkin-item-edit");
 }
 
@@ -1318,19 +1361,12 @@ function updateCheckinItem(){
     const newCatId = document.getElementById("edit_chk_item_cat").value;
     const newName = document.getElementById("edit_chk_item_name").value.trim();
     const newNote = document.getElementById("edit_chk_item_note").value.trim();
-    const recordStr = document.getElementById("edit_chk_records").value.trim();
 
     if(!newName) return alert("打卡名称不能为空");
-
-    // 解析逗号分割的日期，过滤空字符串
-    const newRecords = recordStr.split(",")
-        .map(s=>s.trim())
-        .filter(s=>s.length>0);
 
     item.catId = newCatId;
     item.name = newName;
     item.note = newNote;
-    item.records = newRecords;
 
     saveData("checkinItems");
     closeModal("modal-checkin-item-edit");
@@ -1347,8 +1383,55 @@ function deleteCheckinItem(itemId) {
   renderCheckinAll();
 }
 
+function getLocalDateStr(d = new Date()) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function openCheckinCalendar(itemId) {
+  const item = data.checkinItems.find(x => x.itemId === itemId);
+  if (!item) return;
+  activeCheckinCalendarItemId = itemId;
+  document.getElementById("checkin-calendar-month").value = getLocalDateStr().slice(0, 7);
+  document.getElementById("checkin-calendar-title").textContent = `${item.name} 打卡日历`;
+  renderCheckinCalendar();
+  openModal("modal-checkin-calendar");
+}
+
+function shiftCheckinCalendarMonth(offset) {
+  const monthInput = document.getElementById("checkin-calendar-month");
+  const [year, month] = monthInput.value.split("-").map(Number);
+  const shifted = new Date(year, month - 1 + offset, 1);
+  monthInput.value = `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, "0")}`;
+  renderCheckinCalendar();
+}
+
+function renderCheckinCalendar() {
+  const item = data.checkinItems.find(x => x.itemId === activeCheckinCalendarItemId);
+  const monthInput = document.getElementById("checkin-calendar-month");
+  const grid = document.getElementById("checkin-calendar-grid");
+  if (!item || !monthInput.value) return;
+
+  const [year, month] = monthInput.value.split("-").map(Number);
+  const firstDayOffset = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const records = new Set(Array.isArray(item.records) ? item.records : []);
+  const weekdays = ["一", "二", "三", "四", "五", "六", "日"];
+  let html = weekdays.map(day => `<div class="py-1 text-xs text-gray-500">${day}</div>`).join("");
+
+  for (let i = 0; i < firstDayOffset; i++) html += `<div aria-hidden="true"></div>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = `${monthInput.value}-${String(day).padStart(2, "0")}`;
+    const checked = records.has(date);
+    html += `<div aria-label="${date}${checked ? " 已打卡" : " 未打卡"}" class="h-9 flex items-center justify-center rounded ${checked ? "bg-orange-500 text-white" : "bg-white text-gray-800 border border-gray-100"}">${day}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
 function doCheckToday(itemId) {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateStr();
   const item = data.checkinItems.find(x => x.itemId === itemId);
   if (!item) return;
   if (item.records.includes(today)) return alert("今日已经打卡！");
@@ -1359,28 +1442,35 @@ function doCheckToday(itemId) {
 
 function calcStreak(recordArr) {
   if (!recordArr || recordArr.length === 0) return 0;
-  const sorted = [...recordArr].sort().reverse();
+  const unique = [...new Set((recordArr || []).filter(Boolean))].sort().reverse();
+  const today = getLocalDateStr();
+  const yesterday = getLocalDateStr(new Date(Date.now() - 86400000));
   let streak = 0;
-  let now = new Date();
-  now.setHours(0, 0, 0, 0);
-  for (let i = 0; i < sorted.length; i++) {
-    const d = new Date(sorted[i]);
-    d.setHours(0, 0, 0, 0);
-    const deltaDay = Math.round((now.getTime() - d.getTime()) / (1000 * 3600 * 24));
-    if (deltaDay === i || deltaDay === i - 1) {
-      streak++;
-    } else {
-      break;
-    }
+  const canCountFromToday = unique.includes(today);
+  const canCountFromYesterday = unique.includes(yesterday);
+  for (let i = 0; i < unique.length; i++) {
+    const d = Date.parse(unique[i] + "T00:00:00");
+    const cur = Date.parse((canCountFromToday ? today : yesterday) + "T00:00:00");
+    const deltaDay = Math.round((cur - d) / (1000 * 3600 * 24));
+    if (deltaDay === i || deltaDay === i - 1) streak++;
+    else break;
   }
   return streak;
 }
 
+
+
+
 function renderCheckinAll(){
     const wrap = document.getElementById("checkin-container");
+    const tip = document.getElementById("checkin-filter-tip");
+    let totalItems = data.checkinItems.length;
+    let matchedItems = 0;
     let html = "";
     data.checkinItemCats.forEach(cat=>{
         const itemsInCat = data.checkinItems.filter(it=>it.catId === cat.catId);
+        const visibleItems = checkinDateFilter ? itemsInCat.filter(it=>it.records.includes(checkinDateFilter)) : itemsInCat;
+        matchedItems += visibleItems.length;
         html += `<div class="checkin-group-box">
             <div class="flex justify-between items-center font-bold mb-2">
                 <span>${cat.catName}</span>
@@ -1389,12 +1479,12 @@ function renderCheckinAll(){
                     ${cat.catId !== "def" ? `<button onclick="deleteCheckinCat('${cat.catId}')" class="text-red-500 text-sm">删除</button>` : ""}
                 </div>
             </div>`;
-        if(itemsInCat.length ===0){
-            html += `<div class="text-sm text-gray-500 ml-3">该分类暂无打卡项目</div>`;
+        if(visibleItems.length ===0){
+            html += `<div class="text-sm text-gray-500 ml-3">${checkinDateFilter ? "该分类当日无打卡记录" : "该分类暂无打卡项目"}</div>`;
         }else{
-            itemsInCat.forEach(item=>{
+            visibleItems.forEach(item=>{
                 const streak = calcStreak(item.records);
-                const recordText = item.records.length>0 ? item.records.join("、"):"暂无打卡记录";
+                const recordText = checkinDateFilter ? (item.records.includes(checkinDateFilter) ? checkinDateFilter : "无") : (item.records.length>0 ? item.records.join("、"):"暂无打卡记录");
                 html += `
                 <div class="checkin-item-card">
                     <div class="flex justify-between">
@@ -1404,6 +1494,7 @@ function renderCheckinAll(){
                     <div class="text-sm text-gray-600">备注：${item.note||"无"}</div>
                     <div class="text-sm text-gray-500 mt-1">打卡日期：${recordText}</div>
                     <div class="flex gap-2 mt-2 flex-wrap">
+                      <button onclick="openCheckinCalendar('${item.itemId}')" aria-label="查看${item.name}打卡日历" title="查看打卡日历" class="px-2 py-1 bg-white border border-gray-200 text-gray-700 rounded text-sm"><i class="fa fa-calendar"></i></button>
                         <button onclick="doCheckToday('${item.itemId}')" class="px-2 py-1 bg-primary text-white rounded text-sm">今日打卡</button>
                         <button onclick="openEditCheckinItemModal('${item.itemId}')" class="px-2 py-1 bg-blue-500 text-white rounded text-sm">编辑</button>
                         <button onclick="deleteCheckinItem('${item.itemId}')" class="px-2 py-1 bg-red-400 text-white rounded text-sm">删除</button>
@@ -1413,6 +1504,10 @@ function renderCheckinAll(){
         }
         html += `</div>`;
     });
+    if (tip) {
+      if (!checkinDateFilter) tip.textContent = "";
+      else tip.textContent = `查询结果：${matchedItems} 个打卡项目在 ${checkinDateFilter} 有记录（共 ${totalItems} 个项目）`;
+    }
     wrap.innerHTML = html;
 }
 
